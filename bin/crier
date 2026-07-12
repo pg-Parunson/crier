@@ -42,8 +42,13 @@ start() {
   up && return 0
   "$SUPERTONIC" serve --port "$PORT" --log-level warning >"$LOG" 2>&1 &
   disown
-  for _ in $(seq 1 60); do
+
+  # The very first start fetches the model — 26 files, and on a normal connection
+  # that's well past a 30s patience. It only looked instant to me because my cache
+  # was already warm; everyone else got "failed to start" on a working install.
+  for i in $(seq 1 300); do
     up && { echo "up — 127.0.0.1:$PORT (voice=$(cfg voice))"; return 0; }
+    [ "$i" = 10 ] && printf '  fetching the voice model (first run only)…\n'
     sleep 0.5
   done
   echo "failed to start. log: $LOG" >&2; tail -5 "$LOG" >&2; return 1
