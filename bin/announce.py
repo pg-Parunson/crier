@@ -29,6 +29,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import audio
 import korean
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -308,14 +309,8 @@ def synth(text: str, path: Path) -> bool:
         return False  # daemon down — stay silent rather than break the turn
 
 
-PLAYER = ["afplay"] if sys.platform == "darwin" else ["aplay", "-q"]
-
-
 def play(path: Path) -> int:
-    p = subprocess.Popen(PLAYER + [str(path)],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    PLAY_PID.write_text(str(p.pid))
-    return p.wait()
+    return audio.play(path, PLAY_PID)
 
 
 def perform(chime: str, text: str) -> None:

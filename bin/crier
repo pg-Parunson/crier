@@ -34,7 +34,8 @@ CFG="$ROOT/config.json"
 
 cfg()  { "$PY" -c "import json;print(json.load(open('$CFG')).get('$1',''))"; }
 PORT="$(cfg port)"
-up()   { nc -z 127.0.0.1 "$PORT" 2>/dev/null; }
+# /dev/tcp is a bash builtin — no nc, which minimal Linux images don't ship.
+up()   { (exec 3<>"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; }
 
 start() {
   "$PY" "$ROOT/bin/earcons.py" >/dev/null 2>&1     # generate chimes if missing
@@ -117,7 +118,9 @@ req = urllib.request.Request(f"http://127.0.0.1:{port}/v1/tts", data=body,
 with urllib.request.urlopen(req, timeout=30) as r, \
         tempfile.NamedTemporaryFile(suffix=".wav") as f:
     f.write(r.read()); f.flush()
-    subprocess.run(["afplay" if sys.platform == "darwin" else "aplay", f.name])
+    sys.path.insert(0, str(root / "bin"))
+    import audio
+    audio.play(f.name)
 PY
 }
 
@@ -161,7 +164,7 @@ case "${1:-status}" in
   prompt)  "$PY" "$ROOT/bin/prompt.py" "${@:2}" ;;
 
   # Going into a meeting. The daemon stays warm so unmuting is instant.
-  mute)    set_key muted true  >/dev/null; pkill -x afplay 2>/dev/null; echo "muted" ;;
+  mute)    set_key muted true >/dev/null; "$ROOT/bin/hush.sh"; echo "muted" ;;
   unmute)  set_key muted false >/dev/null; echo "unmuted"; say done "$(sample cli.unmute)" ;;
 
   chimes)

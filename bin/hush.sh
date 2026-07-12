@@ -5,6 +5,9 @@
 STATE="${TMPDIR:-/tmp}/agent-voice"
 PID_FILE="$STATE/play.pid"
 [ -f "$PID_FILE" ] && kill "$(cat "$PID_FILE")" 2>/dev/null
-pkill -x afplay 2>/dev/null
-pkill -x aplay 2>/dev/null
+
+# Whichever player this machine ended up with — see bin/audio.py.
+for p in afplay pw-play paplay aplay ffplay; do
+  pkill -x "$p" 2>/dev/null
+done
 exit 0

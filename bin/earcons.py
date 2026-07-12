@@ -113,8 +113,10 @@ if __name__ == "__main__":
     print(f"{len(STYLES[style])} chimes ({style}) → {ASSETS}")
 
     if "--play" in sys.argv:
-        import subprocess, time
+        import time
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import audio
         for name in STYLES[style]:
             print(f"  ♪ {name}")
-            subprocess.run(["afplay", str(ASSETS / f"{name}.wav")])
+            audio.play(ASSETS / f"{name}.wav")
             time.sleep(0.35)
