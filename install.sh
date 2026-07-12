@@ -57,7 +57,24 @@ step "Chimes"
 "$PY" "$ROOT/bin/earcons.py" >/dev/null
 ok "6 chimes synthesized → assets/earcons/  (not bundled — nothing to license)"
 
-[[ -f "$ROOT/config.json" ]] || cp "$ROOT/config.default.json" "$ROOT/config.json"
+if [[ ! -f "$ROOT/config.json" ]]; then
+  # Guess the language from the locale *while creating* the config. Copying the
+  # defaults first and detecting afterwards doesn't work: setup.py takes the config's
+  # value if there is one, so the "en" it just copied in wins and a Japanese user
+  # gets announcements in English.
+  case "${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}" in
+    ko*) GUESS=ko ;;
+    ja*) GUESS=ja ;;
+    *)   GUESS=en ;;
+  esac
+  "$PY" - "$ROOT" "$GUESS" <<'PY'
+import json, pathlib, sys
+root, lang = pathlib.Path(sys.argv[1]), sys.argv[2]
+cfg = json.loads((root / "config.default.json").read_text())
+cfg["lang"] = lang
+(root / "config.json").write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+PY
+fi
 
 if (( WIRE )); then
   # Asks three questions if someone's at a terminal — even under `curl | sh`, since
