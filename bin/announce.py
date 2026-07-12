@@ -108,8 +108,16 @@ def summarize(reply: str) -> str:
 
 
 def permission_line(tool: str, tool_input: dict) -> str:
-    # For a shell command the verb is the whole point. "rm — shall we?" tells you
-    # whether to approve without looking. "Bash needs approval" does not.
+    # Agents write a plain-language `description` alongside every shell command —
+    # "Delete the build folder" next to `rm -rf build`. It is already there, already
+    # written by the model, and free. Speaking it beats anything we could assemble:
+    # a person asks "shall I delete the build folder?", not "shall I run rm?".
+    said = (tool_input.get("description") or "").strip().rstrip(".")
+    if said:
+        return phrase("permission_described", what=said)
+
+    # No description — reconstruct something. The verb carries the most meaning:
+    # "rm" at least tells you what's at stake. "Bash needs approval" tells you nothing.
     if tool == "Bash":
         cmd = (tool_input.get("command") or "").strip()
         if cmd:

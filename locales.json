@@ -1,11 +1,15 @@
 {
   "_": "Localized announcements. Pick one variant at random each time — a line you hear twenty times a day gets old fast. {what} is filled from the event. There is no 'task complete' line here: the agent writes that one itself, because a sentence invented in this file has no idea what the turn was about.",
-
   "ko": {
     "tools": {
-      "Bash": "명령 실행", "Edit": "파일 수정", "Write": "파일 생성",
-      "NotebookEdit": "노트북 수정", "WebFetch": "웹 접근", "WebSearch": "웹 검색",
-      "Task": "에이전트 실행", "Read": "파일 읽기"
+      "Bash": "명령 실행",
+      "Edit": "파일 수정",
+      "Write": "파일 생성",
+      "NotebookEdit": "노트북 수정",
+      "WebFetch": "웹 접근",
+      "WebSearch": "웹 검색",
+      "Task": "에이전트 실행",
+      "Read": "파일 읽기"
     },
     "errors": {
       "rate_limit": "요청 한도에 걸렸습니다",
@@ -16,7 +20,9 @@
       "server_error": "서버 오류입니다",
       "model_not_found": "모델을 찾을 수 없습니다",
       "invalid_request": "잘못된 요청입니다",
-      "_default": "요청이 실패했습니다"
+      "_default": "요청이 실패했습니다",
+      "oauth_org_not_allowed": "조직 권한이 없습니다",
+      "unknown": "알 수 없는 오류입니다"
     },
     "tone_hint": {
       "plain": "군더더기 없이 사실만. 존댓말.",
@@ -30,50 +36,140 @@
         "**한 문장.** 화면을 안 보고 듣기만 해도 무슨 일이 있었는지, 내가 뭘 해야 하는지 알 수 있게.",
         "코드 식별자·파일 경로·영어 약어는 쓰지 말고 한국어로 풀어 써라. (`Button.tsx의 useEffect` → \"버튼 컴포넌트의 이펙트 훅\")",
         "숫자는 말로 읽히는 형태로. (`3개` → \"세 개\")",
-        "**할 말이 없으면 붙이지 마라.** 단순한 대화나 짧은 답변에는 필요 없다."
+        "**할 말이 없으면 붙이지 마라.** 단순한 대화나 짧은 답변에는 필요 없다.",
+        "위험한 명령을 실행할 때 도구에 붙이는 `description`도 **한국어로, 사람이 말하듯** 써라. 그 문장이 그대로 낭독된다. (`rm -rf build` → \"빌드 폴더 삭제\")"
       ],
       "example": "메모리 누수 고쳤고 테스트 세 개 다 통과했습니다. 커밋할까요?"
     },
     "plain": {
-      "permission_bash": ["{what} 명령 실행 허가가 필요합니다.", "{what} 실행해도 될까요?"],
-      "permission_file": ["{what} 수정 허가가 필요합니다.", "{what} 고쳐도 될까요?"],
-      "permission_other": ["{what} 허가가 필요합니다.", "{what} 진행해도 될까요?"],
-      "agent_needs_input": ["에이전트가 입력을 기다립니다."],
-      "idle": ["대기 중입니다.", "다음 지시 기다립니다."],
-      "error": ["{what}.", "{what}. 확인이 필요합니다."],
-      "compact": ["컨텍스트가 가득 차서 정리합니다."],
-      "agent_start": ["시작하겠습니다."],
-      "agent_done": ["{what} 작업이 끝났습니다."]
+      "permission_bash": [
+        "{what} 명령 실행 허가가 필요합니다.",
+        "{what} 실행해도 될까요?"
+      ],
+      "permission_file": [
+        "{what} 수정 허가가 필요합니다.",
+        "{what} 고쳐도 될까요?"
+      ],
+      "permission_other": [
+        "{what} 허가가 필요합니다.",
+        "{what} 진행해도 될까요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 입력을 기다립니다."
+      ],
+      "idle": [
+        "대기 중입니다.",
+        "다음 지시 기다립니다."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. 확인이 필요합니다."
+      ],
+      "compact": [
+        "컨텍스트가 가득 차서 정리합니다."
+      ],
+      "agent_start": [
+        "시작하겠습니다."
+      ],
+      "agent_done": [
+        "{what} 작업이 끝났습니다."
+      ],
+      "permission_described": [
+        "{what}. 해도 될까요?",
+        "{what}. 허가가 필요합니다."
+      ]
     },
     "friendly": {
-      "permission_bash": ["{what} 명령 돌리려는데 괜찮을까요?", "{what} 실행해도 될까요?", "{what} 좀 돌려볼게요. 허락해 주실래요?"],
-      "permission_file": ["{what} 좀 건드려도 될까요?", "{what} 고쳐도 괜찮을까요?"],
-      "permission_other": ["{what} 진행해도 될까요?", "{what} 해도 괜찮을까요?"],
-      "agent_needs_input": ["에이전트가 물어볼 게 있답니다."],
-      "idle": ["다음 지시 기다리는 중이에요.", "기다리고 있어요."],
-      "error": ["{what}.", "{what}. 한번 봐주셔야 할 것 같아요."],
-      "compact": ["컨텍스트 정리 좀 하고 올게요."],
-      "agent_start": ["시작할게요."],
-      "agent_done": ["{what} 쪽은 끝났어요."]
+      "permission_bash": [
+        "{what} 명령 돌리려는데 괜찮을까요?",
+        "{what} 실행해도 될까요?",
+        "{what} 좀 돌려볼게요. 허락해 주실래요?"
+      ],
+      "permission_file": [
+        "{what} 좀 건드려도 될까요?",
+        "{what} 고쳐도 괜찮을까요?"
+      ],
+      "permission_other": [
+        "{what} 진행해도 될까요?",
+        "{what} 해도 괜찮을까요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 물어볼 게 있답니다."
+      ],
+      "idle": [
+        "다음 지시 기다리는 중이에요.",
+        "기다리고 있어요."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. 한번 봐주셔야 할 것 같아요."
+      ],
+      "compact": [
+        "컨텍스트 정리 좀 하고 올게요."
+      ],
+      "agent_start": [
+        "시작할게요."
+      ],
+      "agent_done": [
+        "{what} 쪽은 끝났어요."
+      ],
+      "permission_described": [
+        "{what}. 해도 될까요?",
+        "{what}, 괜찮을까요?",
+        "{what}. 진행할게요, 괜찮죠?"
+      ]
     },
     "playful": {
-      "permission_bash": ["{what} 돌려도 되나요? 책임은 안 집니다.", "{what} 실행 대기 중. 고 하실까요?", "{what} 명령, 사인 한 번만 주시죠."],
-      "permission_file": ["{what} 손 좀 봐도 될까요?", "{what} 열어봐도 되죠?"],
-      "permission_other": ["{what} 가도 될까요?", "{what} 해도 되나요?"],
-      "agent_needs_input": ["에이전트가 손 들었습니다."],
-      "idle": ["심심합니다. 시키실 거 없나요?", "대기 중. 언제든지요."],
-      "error": ["{what}. 제 탓은 아닙니다.", "{what}. 잠시 쉬어가시죠."],
-      "compact": ["기억이 가득 찼습니다. 좀 비우고 오겠습니다."],
-      "agent_start": ["갑니다."],
-      "agent_done": ["{what} 끝!"]
+      "permission_bash": [
+        "{what} 돌려도 되나요? 책임은 안 집니다.",
+        "{what} 실행 대기 중. 고 하실까요?",
+        "{what} 명령, 사인 한 번만 주시죠."
+      ],
+      "permission_file": [
+        "{what} 손 좀 봐도 될까요?",
+        "{what} 열어봐도 되죠?"
+      ],
+      "permission_other": [
+        "{what} 가도 될까요?",
+        "{what} 해도 되나요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 손 들었습니다."
+      ],
+      "idle": [
+        "심심합니다. 시키실 거 없나요?",
+        "대기 중. 언제든지요."
+      ],
+      "error": [
+        "{what}. 제 탓은 아닙니다.",
+        "{what}. 잠시 쉬어가시죠."
+      ],
+      "compact": [
+        "기억이 가득 찼습니다. 좀 비우고 오겠습니다."
+      ],
+      "agent_start": [
+        "갑니다."
+      ],
+      "agent_done": [
+        "{what} 끝!"
+      ],
+      "permission_described": [
+        "{what}. 고 하실까요?",
+        "{what}. 사인 한 번만 주시죠.",
+        "{what}. 책임은 안 집니다."
+      ]
     }
   },
-
   "en": {
     "tools": {
-      "Bash": "a shell command", "Edit": "a file edit", "Write": "a new file",
-      "NotebookEdit": "a notebook edit", "WebFetch": "web access", "WebSearch": "a web search",
-      "Task": "a subagent", "Read": "a file read"
+      "Bash": "a shell command",
+      "Edit": "a file edit",
+      "Write": "a new file",
+      "NotebookEdit": "a notebook edit",
+      "WebFetch": "web access",
+      "WebSearch": "a web search",
+      "Task": "a subagent",
+      "Read": "a file read"
     },
     "errors": {
       "rate_limit": "You've hit the rate limit",
@@ -84,7 +180,9 @@
       "server_error": "Server error",
       "model_not_found": "That model wasn't found",
       "invalid_request": "The request was invalid",
-      "_default": "The request failed"
+      "_default": "The request failed",
+      "oauth_org_not_allowed": "Your org isn't allowed to use this",
+      "unknown": "Something went wrong"
     },
     "tone_hint": {
       "plain": "Just the facts. No filler.",
@@ -97,50 +195,139 @@
       "rules": [
         "**One sentence.** Someone who only hears it — no screen — should know what happened and what you need from them.",
         "No code identifiers, file paths, or abbreviations. Say them the way a person would. (`useEffect in Button.tsx` → \"the effect hook in the button component\")",
-        "**Leave it out when there is nothing to say.** Small talk and short answers don't need one."
+        "**Leave it out when there is nothing to say.** Small talk and short answers don't need one.",
+        "When you run a command that needs approval, write the tool's `description` **the way you'd say it out loud** — it gets spoken verbatim. (`rm -rf build` → \"delete the build folder\")"
       ],
       "example": "Fixed the memory leak, all three tests pass. Want me to commit?"
     },
     "plain": {
-      "permission_bash": ["{what} needs approval.", "May I run {what}?"],
-      "permission_file": ["{what} needs approval to edit.", "May I edit {what}?"],
-      "permission_other": ["{what} needs approval.", "May I proceed with {what}?"],
-      "agent_needs_input": ["A subagent is waiting on you."],
-      "idle": ["Waiting.", "Standing by."],
-      "error": ["{what}.", "{what}. Take a look."],
-      "compact": ["Context is full. Compacting."],
-      "agent_start": ["Starting."],
-      "agent_done": ["{what} finished."]
+      "permission_bash": [
+        "{what} needs approval.",
+        "May I run {what}?"
+      ],
+      "permission_file": [
+        "{what} needs approval to edit.",
+        "May I edit {what}?"
+      ],
+      "permission_other": [
+        "{what} needs approval.",
+        "May I proceed with {what}?"
+      ],
+      "agent_needs_input": [
+        "A subagent is waiting on you."
+      ],
+      "idle": [
+        "Waiting.",
+        "Standing by."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. Take a look."
+      ],
+      "compact": [
+        "Context is full. Compacting."
+      ],
+      "agent_start": [
+        "Starting."
+      ],
+      "agent_done": [
+        "{what} finished."
+      ],
+      "permission_described": [
+        "{what}. May I?",
+        "{what}. Needs your approval."
+      ]
     },
     "friendly": {
-      "permission_bash": ["Mind if I run {what}?", "Can I go ahead with {what}?", "I'd like to run {what} — okay?"],
-      "permission_file": ["Mind if I touch {what}?", "Okay if I edit {what}?"],
-      "permission_other": ["Okay if I go ahead with {what}?", "Mind if I do {what}?"],
-      "agent_needs_input": ["A subagent has a question for you."],
-      "idle": ["Still here whenever you're ready.", "Waiting on you."],
-      "error": ["{what}.", "{what}. Might want to check that."],
-      "compact": ["Going to tidy up the context a bit."],
-      "agent_start": ["Off we go."],
-      "agent_done": ["{what} is done."]
+      "permission_bash": [
+        "Mind if I run {what}?",
+        "Can I go ahead with {what}?",
+        "I'd like to run {what} — okay?"
+      ],
+      "permission_file": [
+        "Mind if I touch {what}?",
+        "Okay if I edit {what}?"
+      ],
+      "permission_other": [
+        "Okay if I go ahead with {what}?",
+        "Mind if I do {what}?"
+      ],
+      "agent_needs_input": [
+        "A subagent has a question for you."
+      ],
+      "idle": [
+        "Still here whenever you're ready.",
+        "Waiting on you."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. Might want to check that."
+      ],
+      "compact": [
+        "Going to tidy up the context a bit."
+      ],
+      "agent_start": [
+        "Off we go."
+      ],
+      "agent_done": [
+        "{what} is done."
+      ],
+      "permission_described": [
+        "{what}. Okay if I go ahead?",
+        "{what} — mind if I do?"
+      ]
     },
     "playful": {
-      "permission_bash": ["{what}. Shall we? I take no responsibility.", "{what} is loaded. Pull the trigger?", "{what} awaits your signature."],
-      "permission_file": ["Can I have a poke at {what}?", "Opening {what} — you good with that?"],
-      "permission_other": ["{what}. Green light?", "{what}. We doing this?"],
-      "agent_needs_input": ["A subagent has its hand up."],
-      "idle": ["Bored. Got anything?", "Idling. At your service."],
-      "error": ["{what}. Not my fault.", "{what}. Coffee break, maybe."],
-      "compact": ["Memory's full. Off to clear my head."],
-      "agent_start": ["Here we go."],
-      "agent_done": ["{what} — done and dusted."]
+      "permission_bash": [
+        "{what}. Shall we? I take no responsibility.",
+        "{what} is loaded. Pull the trigger?",
+        "{what} awaits your signature."
+      ],
+      "permission_file": [
+        "Can I have a poke at {what}?",
+        "Opening {what} — you good with that?"
+      ],
+      "permission_other": [
+        "{what}. Green light?",
+        "{what}. We doing this?"
+      ],
+      "agent_needs_input": [
+        "A subagent has its hand up."
+      ],
+      "idle": [
+        "Bored. Got anything?",
+        "Idling. At your service."
+      ],
+      "error": [
+        "{what}. Not my fault.",
+        "{what}. Coffee break, maybe."
+      ],
+      "compact": [
+        "Memory's full. Off to clear my head."
+      ],
+      "agent_start": [
+        "Here we go."
+      ],
+      "agent_done": [
+        "{what} — done and dusted."
+      ],
+      "permission_described": [
+        "{what}. Shall we?",
+        "{what}. Just need your signature.",
+        "{what}. I take no responsibility."
+      ]
     }
   },
-
   "ja": {
     "tools": {
-      "Bash": "コマンド実行", "Edit": "ファイル修正", "Write": "ファイル作成",
-      "NotebookEdit": "ノートブック修正", "WebFetch": "ウェブアクセス", "WebSearch": "ウェブ検索",
-      "Task": "エージェント実行", "Read": "ファイル読み込み"
+      "Bash": "コマンド実行",
+      "Edit": "ファイル修正",
+      "Write": "ファイル作成",
+      "NotebookEdit": "ノートブック修正",
+      "WebFetch": "ウェブアクセス",
+      "WebSearch": "ウェブ検索",
+      "Task": "エージェント実行",
+      "Read": "ファイル読み込み"
     },
     "errors": {
       "rate_limit": "レート制限に達しました",
@@ -151,7 +338,9 @@
       "server_error": "サーバーエラーです",
       "model_not_found": "モデルが見つかりません",
       "invalid_request": "リクエストが不正です",
-      "_default": "リクエストが失敗しました"
+      "_default": "リクエストが失敗しました",
+      "oauth_org_not_allowed": "組織の権限がありません",
+      "unknown": "不明なエラーです"
     },
     "tone_hint": {
       "plain": "事実だけを簡潔に。丁寧語で。",
@@ -164,42 +353,124 @@
       "rules": [
         "**一文で。** 画面を見ずに聞くだけで、何が起きたか・何をすればよいかが分かるように。",
         "コード識別子・ファイルパス・英略語は使わず、日本語で言い換えてください。",
-        "**言うことがなければ付けないでください。** 短い返答や雑談には不要です。"
+        "**言うことがなければ付けないでください。** 短い返答や雑談には不要です。",
+        "承認が必要なコマンドを実行するときは、ツールの `description` も**日本語で、話し言葉のように**書いてください。そのまま読み上げられます。(`rm -rf build` → 「ビルドフォルダを削除」)"
       ],
       "example": "メモリリークを直して、テストは三つとも通りました。コミットしますか？"
     },
     "plain": {
-      "permission_bash": ["{what} コマンドの実行許可が必要です。", "{what} を実行してもよろしいですか？"],
-      "permission_file": ["{what} の修正許可が必要です。", "{what} を修正してもよろしいですか？"],
-      "permission_other": ["{what} の許可が必要です。", "{what} を進めてもよろしいですか？"],
-      "agent_needs_input": ["エージェントが入力を待っています。"],
-      "idle": ["待機中です。", "次の指示をお待ちしています。"],
-      "error": ["{what}。", "{what}。確認が必要です。"],
-      "compact": ["コンテキストが一杯なので整理します。"],
-      "agent_start": ["開始します。"],
-      "agent_done": ["{what} の作業が終わりました。"]
+      "permission_bash": [
+        "{what} コマンドの実行許可が必要です。",
+        "{what} を実行してもよろしいですか？"
+      ],
+      "permission_file": [
+        "{what} の修正許可が必要です。",
+        "{what} を修正してもよろしいですか？"
+      ],
+      "permission_other": [
+        "{what} の許可が必要です。",
+        "{what} を進めてもよろしいですか？"
+      ],
+      "agent_needs_input": [
+        "エージェントが入力を待っています。"
+      ],
+      "idle": [
+        "待機中です。",
+        "次の指示をお待ちしています。"
+      ],
+      "error": [
+        "{what}。",
+        "{what}。確認が必要です。"
+      ],
+      "compact": [
+        "コンテキストが一杯なので整理します。"
+      ],
+      "agent_start": [
+        "開始します。"
+      ],
+      "agent_done": [
+        "{what} の作業が終わりました。"
+      ],
+      "permission_described": [
+        "{what}。よろしいですか？",
+        "{what}。許可が必要です。"
+      ]
     },
     "friendly": {
-      "permission_bash": ["{what} を実行したいのですが、よろしいですか？", "{what}、動かしてもいいですか？"],
-      "permission_file": ["{what} を触ってもいいですか？", "{what} を直しても大丈夫ですか？"],
-      "permission_other": ["{what}、進めても大丈夫ですか？", "{what} してもいいですか？"],
-      "agent_needs_input": ["エージェントが聞きたいことがあるそうです。"],
-      "idle": ["次の指示、待ってますね。", "お待ちしています。"],
-      "error": ["{what}。", "{what}。ちょっと見ていただけますか。"],
-      "compact": ["コンテキストを少し整理してきます。"],
-      "agent_start": ["いきます。"],
-      "agent_done": ["{what} のほうは終わりました。"]
+      "permission_bash": [
+        "{what} を実行したいのですが、よろしいですか？",
+        "{what}、動かしてもいいですか？"
+      ],
+      "permission_file": [
+        "{what} を触ってもいいですか？",
+        "{what} を直しても大丈夫ですか？"
+      ],
+      "permission_other": [
+        "{what}、進めても大丈夫ですか？",
+        "{what} してもいいですか？"
+      ],
+      "agent_needs_input": [
+        "エージェントが聞きたいことがあるそうです。"
+      ],
+      "idle": [
+        "次の指示、待ってますね。",
+        "お待ちしています。"
+      ],
+      "error": [
+        "{what}。",
+        "{what}。ちょっと見ていただけますか。"
+      ],
+      "compact": [
+        "コンテキストを少し整理してきます。"
+      ],
+      "agent_start": [
+        "いきます。"
+      ],
+      "agent_done": [
+        "{what} のほうは終わりました。"
+      ],
+      "permission_described": [
+        "{what}。進めてもいいですか？",
+        "{what}、大丈夫ですか？"
+      ]
     },
     "playful": {
-      "permission_bash": ["{what}、いっちゃいますか？責任は取りません。", "{what} 実行待機中。ゴーサインを。"],
-      "permission_file": ["{what}、ちょっと弄ってもいいですか？", "{what} 開けちゃいますよ？"],
-      "permission_other": ["{what}、行ってもいいですか？", "{what}、やっちゃいます？"],
-      "agent_needs_input": ["エージェントが手を挙げています。"],
-      "idle": ["暇です。何かありませんか？", "待機中。いつでもどうぞ。"],
-      "error": ["{what}。私のせいではありません。", "{what}。ひと休みしましょう。"],
-      "compact": ["記憶が一杯です。ちょっと整理してきます。"],
-      "agent_start": ["行きます。"],
-      "agent_done": ["{what}、完了！"]
+      "permission_bash": [
+        "{what}、いっちゃいますか？責任は取りません。",
+        "{what} 実行待機中。ゴーサインを。"
+      ],
+      "permission_file": [
+        "{what}、ちょっと弄ってもいいですか？",
+        "{what} 開けちゃいますよ？"
+      ],
+      "permission_other": [
+        "{what}、行ってもいいですか？",
+        "{what}、やっちゃいます？"
+      ],
+      "agent_needs_input": [
+        "エージェントが手を挙げています。"
+      ],
+      "idle": [
+        "暇です。何かありませんか？",
+        "待機中。いつでもどうぞ。"
+      ],
+      "error": [
+        "{what}。私のせいではありません。",
+        "{what}。ひと休みしましょう。"
+      ],
+      "compact": [
+        "記憶が一杯です。ちょっと整理してきます。"
+      ],
+      "agent_start": [
+        "行きます。"
+      ],
+      "agent_done": [
+        "{what}、完了！"
+      ],
+      "permission_described": [
+        "{what}。いっちゃいますか？",
+        "{what}。ゴーサインを。"
+      ]
     }
   }
 }

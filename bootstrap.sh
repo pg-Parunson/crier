@@ -17,8 +17,23 @@ die()  { printf '  \033[31m✗\033[0m %s\n' "$*" >&2; exit 1; }
 
 printf '\n\033[1mcrier\033[0m — your coding agent tells you what happened\n\n'
 
-command -v git >/dev/null || die "git is required"
-command -v uv  >/dev/null || die "uv is required.  brew install uv   (https://docs.astral.sh/uv/)"
+command -v git >/dev/null || die "git is required. Install Xcode Command Line Tools: xcode-select --install"
+
+# uv runs the Python that runs the voice. Most people who land here don't have it and
+# shouldn't have to care — so fetch it rather than bouncing them to another README.
+# (Piped into sh, we have no stdin left to ask a question with, so we say what we're
+# doing instead of asking.)
+if ! command -v uv >/dev/null; then
+  printf '  uv is missing — installing it from astral.sh\n'
+  curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1 || die "could not install uv"
+  # Its installer puts uv on PATH for *new* shells; this one is already running.
+  for d in "$HOME/.local/bin" "$HOME/.cargo/bin"; do
+    [ -x "$d/uv" ] && PATH="$d:$PATH"
+  done
+  export PATH
+  command -v uv >/dev/null || die "uv installed but isn't on PATH — open a new terminal and re-run this"
+fi
+ok "uv $(uv --version | awk '{print $2}')"
 
 if [ -d "$HOME_DIR/.git" ]; then
   git -C "$HOME_DIR" pull --ff-only --quiet
