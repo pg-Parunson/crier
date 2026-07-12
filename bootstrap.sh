@@ -10,7 +10,6 @@ set -euo pipefail
 REPO="https://github.com/pg-Parunson/crier"
 HOME_DIR="${CRIER_HOME:-$HOME/.crier}"
 BIN_DIR="${CRIER_BIN:-$HOME/.local/bin}"
-AGENT="${1:-claude}"
 
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$*"; }
 die()  { printf '  \033[31m✗\033[0m %s\n' "$*" >&2; exit 1; }
@@ -43,7 +42,9 @@ else
   ok "cloned to $HOME_DIR"
 fi
 
-"$HOME_DIR/install.sh" "$AGENT"
+# Forward everything, not just the first word: `sh -s -- codex` and
+# `sh -s -- --agent codex --lang ko --yes` both have to reach the installer intact.
+"$HOME_DIR/install.sh" "$@"
 
 mkdir -p "$BIN_DIR"
 ln -sf "$HOME_DIR/bin/crier" "$BIN_DIR/crier"

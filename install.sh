@@ -20,7 +20,23 @@ warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 die()  { printf '  \033[31m✗\033[0m %s\n' "$*" >&2; exit 1; }
 
 WIRE=1
-for a in "$@"; do [[ "$a" == "--no-hooks" ]] && WIRE=0; done
+ARGS=()
+PREV=""
+for a in "$@"; do
+  # A word right after a value-taking flag is that flag's value — never a command of
+  # its own. Without this, `--agent gemini` rewrote itself into `--agent --agent gemini`.
+  case "$PREV" in
+    --agent|--lang|--name|--voice|--tone) ARGS+=("$a"); PREV="$a"; continue ;;
+  esac
+  case "$a" in
+    --no-hooks) WIRE=0 ;;
+    # The README says `sh -s -- codex`, so a bare agent name has to work. setup.py
+    # only speaks flags, and silently defaulted a Codex user to Claude.
+    claude|codex|gemini|cursor) ARGS+=(--agent "$a") ;;
+    *) ARGS+=("$a") ;;
+  esac
+  PREV="$a"
+done
 
 step "Prerequisites"
 [[ "$(uname)" == "Darwin" ]] || warn "Built and tested on macOS. Linux needs 'aplay' — playback is untested."
@@ -29,7 +45,11 @@ ok "uv $(uv --version | awk '{print $2}')"
 
 step "Voice engine (Supertonic — local, offline, no API key)"
 # System Python is often too new for ML wheels; uv pins one that works.
-uv venv --python 3.11 "$ROOT/.venv" >/dev/null 2>&1 || die "could not create the virtualenv"
+# `uv venv` refuses to overwrite, so re-running the installer — which is exactly what
+# `crier update` and a second bootstrap do — would die here on an existing install.
+if [[ ! -x "$PY" ]]; then
+  uv venv --python 3.11 "$ROOT/.venv" >/dev/null 2>&1 || die "could not create the virtualenv"
+fi
 uv pip install --python "$PY" -q "supertonic[serve]" soundfile || die "could not install supertonic"
 ok "supertonic installed"
 
@@ -43,7 +63,7 @@ if (( WIRE )); then
   # Asks three questions if someone's at a terminal — even under `curl | sh`, since
   # setup.py reads /dev/tty rather than stdin. If nobody's there (an agent doing the
   # install, CI), it takes the flags, guesses the rest, and says what it picked.
-  AGENT="$("$PY" "$ROOT/bin/setup.py" "$@" | tail -1)"
+  AGENT="$("$PY" "$ROOT/bin/setup.py" "${ARGS[@]+"${ARGS[@]}"}" | tail -1)"
 
   step "Wiring $AGENT"
   "$PY" "$ROOT/bin/wire.py" "$AGENT" || die "unknown agent: $AGENT"
