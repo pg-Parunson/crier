@@ -139,14 +139,14 @@ Measured on an M-series Mac: RTF **0.159** — a 5-second sentence takes ~0.8s t
 
 ### Agents
 
-| Agent | Turn end + text | Permission + which command |
-|---|---|---|
-| **Claude Code** | ✅ | ✅ |
-| **Codex CLI** | ✅ | ✅ |
-| **Gemini CLI** | ✅ | ✅ |
-| **Cursor** | ✅ | ✅ |
+| Agent | Turn end + text | Permission + which command | |
+|---|---|---|---|
+| **Claude Code** | ✅ | ✅ | used daily |
+| **Codex CLI** | ✅ | ✅ | built from the docs — **not yet run against a real install** |
+| **Gemini CLI** | ✅ | ✅ | built from the docs — **not yet run against a real install** |
+| **Cursor** | ✅ | ✅ | built from the docs — **not yet run against a real install**; also the only one with no user-level instruction file, so the spoken line has to be pasted into User Rules by hand |
 
-Claude Code and Codex use identical event names and payloads, so they share a hook. Gemini and Cursor say the same things in different words — [`announce.py`](bin/announce.py) normalizes them. Adding an agent is a routing-table entry in [`bin/wire.py`](bin/wire.py), not an integration.
+Claude Code is the one I actually use, so it's the one that's actually proven. The other three were built by reading their hook docs: the event names and payload fields line up, and [`announce.py`](bin/announce.py) normalizes the differences, but nobody has sat down with Codex or Cursor installed and watched it speak. **If you use one of them, I'd like to hear what breaks.** Adding an agent is a routing-table entry in [`bin/wire.py`](bin/wire.py), not an integration.
 
 Agents that expose only a contentless ping (Aider) can't carry a brief. crier is the wrong tool there; use peon-ping.
 
