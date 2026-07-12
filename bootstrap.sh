@@ -1,11 +1,15 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # One-line install.
 #
 #   curl -fsSL https://raw.githubusercontent.com/pg-Parunson/crier/main/bootstrap.sh | sh
 #   curl -fsSL .../bootstrap.sh | sh -s -- codex        # pick your agent
 #
 # Clones to ~/.crier, sets everything up, and puts `crier` on your PATH.
-set -euo pipefail
+#
+# POSIX sh only — no bashisms. We tell people to pipe this into `sh`, and on Linux
+# that's dash, which dies on `set -o pipefail` before printing a single line. The
+# installer it calls can use bash; this file cannot.
+set -eu
 
 REPO="https://github.com/pg-Parunson/crier"
 HOME_DIR="${CRIER_HOME:-$HOME/.crier}"
@@ -16,7 +20,22 @@ die()  { printf '  \033[31m✗\033[0m %s\n' "$*" >&2; exit 1; }
 
 printf '\n\033[1mcrier\033[0m — your coding agent tells you what happened\n\n'
 
-command -v git >/dev/null || die "git is required. Install Xcode Command Line Tools: xcode-select --install"
+if ! command -v git >/dev/null; then
+  case "$(uname)" in
+    Darwin) die "git is required:  xcode-select --install" ;;
+    *)      die "git is required:  sudo apt install git   (or your distro's equivalent)" ;;
+  esac
+fi
+
+# Linux needs something that can actually make a sound. macOS always can.
+if [ "$(uname)" != "Darwin" ]; then
+  HAVE_PLAYER=""
+  for p in pw-play paplay aplay ffplay; do
+    command -v "$p" >/dev/null && HAVE_PLAYER="$p" && break
+  done
+  [ -n "$HAVE_PLAYER" ] || die "no audio player found. Install one:
+      sudo apt install pipewire-bin      # or: pulseaudio-utils, alsa-utils"
+fi
 
 # uv runs the Python that runs the voice. Most people who land here don't have it and
 # shouldn't have to care — so fetch it rather than bouncing them to another README.
