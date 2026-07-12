@@ -10,7 +10,7 @@ crier says it instead:
 
 > 🔔 *"Fixed the memory leak, all three tests pass. Want me to commit?"*
 >
-> 🔔 *"May I run `rm`?"*
+> 🔔 *"Delete the build folder — may I?"*
 >
 > 🔔 *"You've hit the rate limit."*
 
@@ -50,7 +50,7 @@ Four moments. Everything else, it stays quiet.
 | | |
 |---|---|
 | **It finished** | *"All three tests pass. Want me to commit?"* |
-| **It needs permission** | *"May I run `rm`?"* |
+| **It needs permission** | *"Delete the build folder — may I?"* |
 | **It broke** | *"You've hit the rate limit."* |
 | **It's been waiting** | *"Still here whenever you're ready."* |
 
@@ -110,7 +110,7 @@ This is the part that decides whether you keep it installed. A parallel fan-out 
 
 1. **Once per turn.** Subagent announcements fire only for the turn's first agent (keyed on `prompt_id`). Eight agents or thirty — you hear it once, then silence until your next prompt. A cooldown alone can't do this: a heavy turn keeps spawning agents for minutes, so it would only flatten the opening burst.
 2. **Cooldown** (2.5s, shared across sessions) so ten projects don't talk over each other.
-3. **Priority.** Permission requests and errors **skip the cooldown.** A chatty announcement must never swallow *"May I run rm?"*.
+3. **Priority.** Permission requests and errors **skip the cooldown.** A chatty announcement must never swallow *"Drop the users table — may I?"*.
 
 ### The chime
 
