@@ -11,7 +11,7 @@
 #   crier tone playful        plain | friendly | playful
 #   crier lang ja             ko | en | ja
 #   crier name "Jaeho"        used now and then, not every time ("" turns it off)
-#   crier chimes              hear the 6 chimes
+#   crier chimes [soft|bell]  hear them, or switch (soft is gentler)
 #   crier demo                hear every event
 #   crier prompt install      let the agent write its own spoken line
 #   crier say "anything"      one-off
@@ -61,6 +61,17 @@ cfg = json.loads(path.read_text())
 cfg[key] = float(value) if key == "name_chance" else value
 path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
 print(f"{key} = {cfg[key]!r}")
+PY
+}
+
+set_earcon_style() {
+  "$PY" - "$1" "$CFG" <<'PY'
+import json, pathlib, sys
+style, path = sys.argv[1], pathlib.Path(sys.argv[2])
+cfg = json.loads(path.read_text())
+cfg.setdefault("earcons", {})["style"] = style
+path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+print(f"chimes = {style}")
 PY
 }
 
@@ -134,8 +145,18 @@ case "${1:-status}" in
     ;;
 
   say)     say done "${2:-hello}" ;;
-  chimes)  "$PY" "$ROOT/bin/earcons.py" --play ;;
   prompt)  "$PY" "$ROOT/bin/prompt.py" "${@:2}" ;;
+
+  chimes)
+    if [ $# -ge 2 ]; then
+      case "$2" in
+        soft|bell) "$PY" "$ROOT/bin/earcons.py" --style "$2" --force >/dev/null
+                   set_earcon_style "$2" ;;
+        *) echo "soft | bell" >&2; exit 2 ;;
+      esac
+    fi
+    "$PY" "$ROOT/bin/earcons.py" --play
+    ;;
 
   voices)
     start >/dev/null || exit 1

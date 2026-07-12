@@ -12,6 +12,7 @@
   "marker": "[say]",
   "earcons": {
     "enabled": true,
+    "style": "soft",
     "gap_ms": 120
   },
   "events": {

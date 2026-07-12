@@ -120,6 +120,8 @@ The chimes are **synthesized at install** ([`bin/earcons.py`](bin/earcons.py)), 
 
 They pay for themselves twice: **the speech is synthesized while the chime rings**, so the words land as it fades and you never hear the model think.
 
+The first version sat around C6–G6, which put its second harmonic near 3 kHz — right where hearing is sharpest — and it hurt. The default now sits an octave lower and fades in over 25ms, so the note arrives rather than hits. `crier chimes bell` brings the bright ones back.
+
 ### Why hooks, not MCP
 
 - **A hook needs no cooperation from the model.** An MCP tool only runs if the model *decides* to call it — so the moment it thinks "task's done," your voice loop dies silently.
