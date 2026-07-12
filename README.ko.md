@@ -5,10 +5,10 @@
 *[English](README.md)*
 
 <p align="center">
-  <img src="docs/demo.gif" width="840" alt="작업이 끝나자 crier가 말한다">
+  <img src="docs/demo.ko.gif" width="840" alt="작업이 끝나자 crier가 말한다">
 </p>
 <p align="center">
-  <sub><a href="docs/demo.mp4">▶ 소리 켜고 보기</a> — 종소리와 목소리가 이 도구의 전부다.</sub>
+  <sub><a href="docs/demo.ko.mp4">▶ 소리 켜고 보기</a> — 종소리와 목소리가 이 도구의 전부다.</sub>
 </p>
 
 시켜놓고 딴 창으로 넘어간다. 에이전트는 끝났는데 나는 모른다. 5분 뒤에 돌아와서 화면을 읽어보니, 진작에 "이거 해도 될까요?" 하고 기다리고 있었다.

@@ -15,3 +15,5 @@ voices.html
 
 # demo assets are the point — they ship
 !docs/
+
+.DS_Store
