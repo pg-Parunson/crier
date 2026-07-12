@@ -89,13 +89,20 @@ def prose(text: str) -> str:
 SENTENCE = re.compile(r"[^.!?。？！\n]+[.!?。？！]?")
 
 
+# The configured marker, plus the ones crier has shipped or suggested. A session
+# already running has the old marker baked into its context and won't see a config
+# change until it restarts — without this, changing the marker silently drops every
+# spoken line until every open session is restarted.
+MARKERS = [CFG["marker"], "[say]", "[말]", "[안내]", "[요약]", "[info]", "[brief]", "[案内]"]
+
+
 def summarize(reply: str) -> str:
     """Prefer the line the agent wrote to be spoken; else fall back to its own words."""
-    marker = CFG["marker"]
     for line in reply.splitlines():
         s = line.strip()
-        if s.startswith(marker):
-            return prose(s[len(marker):]).strip()[: CFG["max_chars"]]
+        for marker in MARKERS:
+            if s.startswith(marker):
+                return prose(s[len(marker):]).strip()[: CFG["max_chars"]]
 
     # No marker — the prompt isn't installed, or the agent skipped it. Take the last
     # sentence if it's a question (that's what you have to answer), else the first,
