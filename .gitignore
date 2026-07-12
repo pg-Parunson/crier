@@ -12,3 +12,6 @@ assets/earcons/*.wav
 # local voice-audition scratch (not part of the tool)
 samples/
 voices.html
+
+# demo assets are the point — they ship
+!docs/

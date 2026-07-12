@@ -4,6 +4,13 @@
 
 *[한국어](README.ko.md)*
 
+<p align="center">
+  <img src="docs/demo.gif" width="840" alt="crier speaking when a task finishes">
+</p>
+<p align="center">
+  <sub><a href="docs/demo.mp4">▶ with sound</a> — the chime and the voice are the whole point.</sub>
+</p>
+
 You set the agent going and switch to something else. It finishes. You don't notice. Five minutes later you tab back, read the screen, and find out it just needed you to say yes.
 
 crier says it instead:
