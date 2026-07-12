@@ -28,6 +28,9 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import korean
+
 ROOT = Path(__file__).resolve().parent.parent
 CFG = json.loads((ROOT / "config.json").read_text())
 LOCALES = json.loads((ROOT / "locales.json").read_text())
@@ -275,8 +278,15 @@ def detect(text: str) -> str:
 
 
 def synth(text: str, path: Path) -> bool:
+    lang = detect(text)
+    if lang == "ko":
+        # Korean has two number systems and the engine picks the wrong one about half
+        # the time — it read `3번` (item three) as 세 번 (three times). Spell every
+        # number out in Hangul first so it never has to guess. See korean.py.
+        text = korean.normalize(text)
+
     body = json.dumps({
-        "text": text, "voice": CFG["voice"], "lang": detect(text),
+        "text": text, "voice": CFG["voice"], "lang": lang,
         "speed": CFG["speed"], "steps": CFG["steps"], "response_format": "wav",
     }).encode()
     req = urllib.request.Request(

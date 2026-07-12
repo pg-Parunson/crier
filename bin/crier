@@ -2,6 +2,7 @@
 # The TTS daemon, and everything you'd want to tweak by ear.
 # The daemon keeps the model resident, so a hook only ever pays for synthesis.
 #
+#   crier setup                                  re-ask language / agent / name
 #   crier install [claude|codex|gemini|cursor]   wire up an agent
 #   crier uninstall [agent]                      unwire it
 #   crier start | stop | restart | status
@@ -104,16 +105,26 @@ case "${1:-status}" in
     up && echo "running — 127.0.0.1:$PORT · voice=$(cfg voice) · lang=$(cfg lang) · tone=$(cfg tone) · name=$(cfg call_name)" \
        || echo "stopped" ;;
 
+  setup)
+    A="$("$PY" "$ROOT/bin/setup.py" "${@:2}" | tail -1)"
+    "$PY" "$ROOT/bin/wire.py" "$A" || exit 1
+    "$PY" "$ROOT/bin/prompt.py" install --agent "$A"
+    start >/dev/null
+    say done "$(sample example)"
+    ;;
+
   install)
-    "$PY" "$ROOT/bin/wire.py" "${2:-claude}" || exit 1
-    "$PY" "$ROOT/bin/prompt.py" install >/dev/null 2>&1 || true
+    A="${2:-claude}"
+    "$PY" "$ROOT/bin/wire.py" "$A" || exit 1
+    "$PY" "$ROOT/bin/prompt.py" install --agent "$A"
     start
     echo "Restart your agent session. Then try:  crier demo"
     ;;
 
   uninstall)
-    "$PY" "$ROOT/bin/wire.py" "${2:-claude}" --remove || exit 1
-    "$PY" "$ROOT/bin/prompt.py" remove >/dev/null 2>&1 || true
+    A="${2:-claude}"
+    "$PY" "$ROOT/bin/wire.py" "$A" --remove || exit 1
+    "$PY" "$ROOT/bin/prompt.py" remove --agent "$A" || true
     pkill -f "supertonic serve --port $PORT" 2>/dev/null || true
     echo "Unwired. The repo is still at $ROOT — delete it to finish."
     ;;
@@ -124,7 +135,7 @@ case "${1:-status}" in
 
   say)     say done "${2:-hello}" ;;
   chimes)  "$PY" "$ROOT/bin/earcons.py" --play ;;
-  prompt)  "$PY" "$ROOT/bin/prompt.py" "${2:-show}" ;;
+  prompt)  "$PY" "$ROOT/bin/prompt.py" "${@:2}" ;;
 
   voices)
     start >/dev/null || exit 1
