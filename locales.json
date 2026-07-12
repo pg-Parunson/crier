@@ -158,6 +158,14 @@
         "{what}. 사인 한 번만 주시죠.",
         "{what}. 책임은 안 집니다."
       ]
+    },
+    "cli": {
+      "name": "{what}, 앞으로 이렇게 부르겠습니다.",
+      "voice": "목소리를 바꿨습니다. 앞으로 이렇게 말할게요.",
+      "lang": "이제 한국어로 말합니다.",
+      "tone": "말투를 바꿨습니다. 이런 느낌이에요.",
+      "unmute": "다시 말할게요.",
+      "setup": "준비됐습니다."
     }
   },
   "en": {
@@ -316,6 +324,14 @@
         "{what}. Just need your signature.",
         "{what}. I take no responsibility."
       ]
+    },
+    "cli": {
+      "name": "{what} it is. That's what I'll call you.",
+      "voice": "New voice. This is how I'll sound from now on.",
+      "lang": "I'll speak English from now on.",
+      "tone": "Tone changed. This is the new one.",
+      "unmute": "I'm back.",
+      "setup": "All set."
     }
   },
   "ja": {
@@ -471,6 +487,14 @@
         "{what}。いっちゃいますか？",
         "{what}。ゴーサインを。"
       ]
+    },
+    "cli": {
+      "name": "{what}、これからそうお呼びします。",
+      "voice": "声を変えました。これからこう話します。",
+      "lang": "これから日本語で話します。",
+      "tone": "話し方を変えました。こんな感じです。",
+      "unmute": "また話します。",
+      "setup": "準備できました。"
     }
   }
 }

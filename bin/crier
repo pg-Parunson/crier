@@ -81,19 +81,26 @@ print(f"chimes = {style}")
 PY
 }
 
-# sample <key> — a random line of the current locale/tone, for previews
+# sample <key> [what] — a line in the current language/tone.
+#
+# cli.* are the confirmations: each command says something about what it just did.
+# They used to all reuse the demo sentence, so changing your name got you a cheerful
+# "fixed the memory leak" — right voice, wrong words.
 sample() {
-  "$PY" - "$ROOT" "$1" <<'PY'
+  "$PY" - "$ROOT" "$1" "${2:-}" <<'PY'
 import json, pathlib, random, sys
-root, key = pathlib.Path(sys.argv[1]), sys.argv[2]
+root, key, what = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3]
 cfg = json.loads((root / "config.json").read_text())
 loc = json.loads((root / "locales.json").read_text())[cfg["lang"]]
-if key == "example":
+
+if key.startswith("cli."):
+    print(loc["cli"][key[4:]].format(what=what))
+elif key == "example":
     print(loc["prompt"]["example"])
 elif key == "error":
     print(random.choice(loc[cfg["tone"]]["error"]).format(what=loc["errors"]["rate_limit"]))
 else:
-    print(random.choice(loc[cfg["tone"]][key]).format(what="rm"))
+    print(random.choice(loc[cfg["tone"]][key]).format(what=what or "rm"))
 PY
 }
 
@@ -127,7 +134,7 @@ case "${1:-status}" in
     "$PY" "$ROOT/bin/wire.py" "$A" || exit 1
     "$PY" "$ROOT/bin/prompt.py" install --agent "$A"
     start >/dev/null
-    say done "$(sample example)"
+    say done "$(sample cli.setup)"
     ;;
 
   install)
@@ -155,7 +162,7 @@ case "${1:-status}" in
 
   # Going into a meeting. The daemon stays warm so unmuting is instant.
   mute)    set_key muted true  >/dev/null; pkill -x afplay 2>/dev/null; echo "muted" ;;
-  unmute)  set_key muted false >/dev/null; echo "unmuted"; say done "$(sample example)" ;;
+  unmute)  set_key muted false >/dev/null; echo "unmuted"; say done "$(sample cli.unmute)" ;;
 
   chimes)
     if [ $# -ge 2 ]; then
@@ -183,7 +190,7 @@ case "${1:-status}" in
     [ $# -ge 2 ] || { echo "usage: crier voice F1|…|F5|M1|…|M5" >&2; exit 2; }
     case "$2" in F[1-5]|M[1-5]) ;; *) echo "F1–F5 or M1–M5" >&2; exit 2 ;; esac
     set_key voice "$2"
-    say done "$(sample example)"
+    say done "$(sample cli.voice)"
     ;;
 
   tone)
@@ -191,7 +198,7 @@ case "${1:-status}" in
     case "$2" in plain|friendly|playful) ;; *) echo "plain · friendly · playful" >&2; exit 2 ;; esac
     set_key tone "$2"
     "$PY" "$ROOT/bin/prompt.py" install >/dev/null   # the tone lives in the prompt too
-    say ask "$(sample permission_bash)"
+    say done "$(sample cli.tone)"
     ;;
 
   lang)
@@ -199,13 +206,13 @@ case "${1:-status}" in
     case "$2" in ko|en|ja) ;; *) echo "ko · en · ja" >&2; exit 2 ;; esac
     set_key lang "$2"
     "$PY" "$ROOT/bin/prompt.py" install >/dev/null
-    say done "$(sample example)"
+    say done "$(sample cli.lang)"
     ;;
 
   name)
     [ $# -ge 2 ] || { echo 'usage: crier name "Jaeho"    ("" turns it off)' >&2; exit 2; }
     set_key call_name "$2"
-    [ -n "$2" ] && say done "$2, $(sample example)"
+    [ -n "$2" ] && say done "$(sample cli.name "$2")"
     ;;
 
   demo)
