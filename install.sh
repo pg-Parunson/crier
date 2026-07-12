@@ -41,7 +41,7 @@ if [[ -f "$ROOT/config.json" ]]; then
   ok "config.json exists — left alone"
 else
   cp "$ROOT/config.default.json" "$ROOT/config.json"
-  ok "config.json created  (lang=ko, voice=F2 — change with 'bin/voiced lang en')"
+  ok "config.json created  (lang=ko, voice=F2 — change with 'bin/crier lang en')"
 fi
 
 if [[ "$AGENT" == "--no-hooks" ]]; then
@@ -53,17 +53,17 @@ else
 fi
 
 step "Starting the voice daemon"
-"$ROOT/bin/voiced" start
+"$ROOT/bin/crier" start
 
 cat <<EOF
 
 $(printf '\033[1mDone.\033[0m')  Restart your agent session so it picks up the hooks.
 
-  bin/voiced demo                hear every event
-  bin/voiced voices              hear all 10 voices, then: bin/voiced voice M3
-  bin/voiced lang en             ko | en | ja
-  bin/voiced tone playful        plain | friendly | playful
-  bin/voiced name "Jaeho"        it'll use your name now and then
-  bin/voiced prompt install      let the agent write its own spoken line (recommended)
+  bin/crier demo                hear every event
+  bin/crier voices              hear all 10 voices, then: bin/crier voice M3
+  bin/crier lang en             ko | en | ja
+  bin/crier tone playful        plain | friendly | playful
+  bin/crier name "Jaeho"        it'll use your name now and then
+  bin/crier prompt install      let the agent write its own spoken line (recommended)
 
 EOF

@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ANNOUNCE = f"{ROOT}/.venv/bin/python {ROOT}/bin/announce.py"
 HUSH = f"{ROOT}/bin/hush.sh"
-BOOT = f"nohup {ROOT}/bin/voiced start >/dev/null 2>&1 & exit 0"
+BOOT = f"nohup {ROOT}/bin/crier start >/dev/null 2>&1 & exit 0"
 
 MARK = "__agent_voice__"  # so --remove knows what is ours
 

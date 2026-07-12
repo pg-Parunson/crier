@@ -49,7 +49,7 @@ crier asks it to end each reply with one spoken line:
 **There is no second API call and no second key.** The model that just did the work — the only thing in the system that knows what the turn was about — writes one more line. A handful of output tokens. If you're using a coding agent, you already have everything crier needs.
 
 ```bash
-bin/voiced prompt install     # adds the instruction to your agent's memory file
+crier prompt install         # adds the instruction to your agent's memory file
 ```
 
 Skip it and crier falls back to a rule: the last sentence if it's a question (that's what you have to answer), otherwise the first (that's where the outcome gets stated). It works, but the agent writes a better line than any rule can.
@@ -59,14 +59,21 @@ The contentless announcements — permission, error, idle — are canned in [`lo
 ## Install
 
 ```bash
-git clone https://github.com/pg-Parunson/crier
-cd crier
-./install.sh          # or: ./install.sh codex | gemini | cursor
+curl -fsSL https://raw.githubusercontent.com/pg-Parunson/crier/main/bootstrap.sh | sh
 ```
 
-Then restart your agent session.
+Then restart your agent session and run `crier demo`.
+
+Using something other than Claude Code:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pg-Parunson/crier/main/bootstrap.sh | sh -s -- codex
+#                                                                                          gemini
+#                                                                                          cursor
+```
 
 Requires [uv](https://docs.astral.sh/uv/) and macOS. (Linux needs `aplay`; playback is untested — PRs welcome.)
+Removing it is `crier uninstall`, which un-wires the hooks and restores your settings from backup.
 
 ## Agents
 
@@ -86,12 +93,12 @@ Agents that only expose a contentless ping (Aider) can't carry a brief. crier is
 [Supertonic](https://github.com/supertone-inc/supertonic) — a local ONNX model, no GPU, no network. 10 voices (F1–F5, M1–M5), 31 languages.
 
 ```bash
-bin/voiced voices            # hear all ten
-bin/voiced voice M3
-bin/voiced lang ja           # ko | en | ja
-bin/voiced tone playful      # plain | friendly | playful
-bin/voiced name "Jaeho"      # used now and then, not every time
-bin/voiced demo              # hear every event
+crier voices            # hear all ten
+crier voice M3
+crier lang ja           # ko | en | ja
+crier tone playful      # plain | friendly | playful
+crier name "Jaeho"      # used now and then, not every time
+crier demo              # hear every event
 ```
 
 **Korean actually works**, which is worth saying because most open TTS silently doesn't. Kokoro-82M has no Korean at all (its maintainer dropped it). Chatterbox Multilingual reports 70.9% CER on Korean — Resemble AI publishes that number themselves. Piper has no `ko_KR` voice. XTTS-v2 speaks Korean under a non-commercial license from a company that shut down in 2024, so it can never be relicensed. Supertonic is the one that reads `useEffect` as *"useEffect"* inside a Korean sentence instead of transliterating it into something unrecognizable.

@@ -2,16 +2,18 @@
 # The TTS daemon, and everything you'd want to tweak by ear.
 # The daemon keeps the model resident, so a hook only ever pays for synthesis.
 #
-#   voiced start | stop | restart | status
-#   voiced voices              hear all 10 voices
-#   voiced voice M3            F1–F5 (female) · M1–M5 (male)
-#   voiced tone playful        plain | friendly | playful
-#   voiced lang ja             ko | en | ja
-#   voiced name "Jaeho"        used now and then, not every time ("" turns it off)
-#   voiced chimes              hear the 6 chimes
-#   voiced demo                hear every event
-#   voiced prompt install      let the agent write its own spoken line
-#   voiced say "anything"      one-off
+#   crier install [claude|codex|gemini|cursor]   wire up an agent
+#   crier uninstall [agent]                      unwire it
+#   crier start | stop | restart | status
+#   crier voices              hear all 10 voices
+#   crier voice M3            F1–F5 (female) · M1–M5 (male)
+#   crier tone playful        plain | friendly | playful
+#   crier lang ja             ko | en | ja
+#   crier name "Jaeho"        used now and then, not every time ("" turns it off)
+#   crier chimes              hear the 6 chimes
+#   crier demo                hear every event
+#   crier prompt install      let the agent write its own spoken line
+#   crier say "anything"      one-off
 set -u
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -94,6 +96,24 @@ case "${1:-status}" in
     up && echo "running — 127.0.0.1:$PORT · voice=$(cfg voice) · lang=$(cfg lang) · tone=$(cfg tone) · name=$(cfg call_name)" \
        || echo "stopped" ;;
 
+  install)
+    "$PY" "$ROOT/bin/wire.py" "${2:-claude}" || exit 1
+    "$PY" "$ROOT/bin/prompt.py" install >/dev/null 2>&1 || true
+    start
+    echo "Restart your agent session. Then try:  crier demo"
+    ;;
+
+  uninstall)
+    "$PY" "$ROOT/bin/wire.py" "${2:-claude}" --remove || exit 1
+    "$PY" "$ROOT/bin/prompt.py" remove >/dev/null 2>&1 || true
+    pkill -f "supertonic serve --port $PORT" 2>/dev/null || true
+    echo "Unwired. The repo is still at $ROOT — delete it to finish."
+    ;;
+
+  update)
+    git -C "$ROOT" pull --ff-only && "$ROOT/install.sh" --no-hooks
+    ;;
+
   say)     say done "${2:-hello}" ;;
   chimes)  "$PY" "$ROOT/bin/earcons.py" --play ;;
   prompt)  "$PY" "$ROOT/bin/prompt.py" "${2:-show}" ;;
@@ -106,18 +126,18 @@ case "${1:-status}" in
       preview_voice "$v"
     done
     echo
-    echo "pick one:  voiced voice F3"
+    echo "pick one:  crier voice F3"
     ;;
 
   voice)
-    [ $# -ge 2 ] || { echo "usage: voiced voice F1|…|F5|M1|…|M5" >&2; exit 2; }
+    [ $# -ge 2 ] || { echo "usage: crier voice F1|…|F5|M1|…|M5" >&2; exit 2; }
     case "$2" in F[1-5]|M[1-5]) ;; *) echo "F1–F5 or M1–M5" >&2; exit 2 ;; esac
     set_key voice "$2"
     say done "$(sample example)"
     ;;
 
   tone)
-    [ $# -ge 2 ] || { echo "usage: voiced tone plain|friendly|playful" >&2; exit 2; }
+    [ $# -ge 2 ] || { echo "usage: crier tone plain|friendly|playful" >&2; exit 2; }
     case "$2" in plain|friendly|playful) ;; *) echo "plain · friendly · playful" >&2; exit 2 ;; esac
     set_key tone "$2"
     "$PY" "$ROOT/bin/prompt.py" install >/dev/null   # the tone lives in the prompt too
@@ -125,7 +145,7 @@ case "${1:-status}" in
     ;;
 
   lang)
-    [ $# -ge 2 ] || { echo "usage: voiced lang ko|en|ja" >&2; exit 2; }
+    [ $# -ge 2 ] || { echo "usage: crier lang ko|en|ja" >&2; exit 2; }
     case "$2" in ko|en|ja) ;; *) echo "ko · en · ja" >&2; exit 2 ;; esac
     set_key lang "$2"
     "$PY" "$ROOT/bin/prompt.py" install >/dev/null
@@ -133,7 +153,7 @@ case "${1:-status}" in
     ;;
 
   name)
-    [ $# -ge 2 ] || { echo 'usage: voiced name "Jaeho"    ("" turns it off)' >&2; exit 2; }
+    [ $# -ge 2 ] || { echo 'usage: crier name "Jaeho"    ("" turns it off)' >&2; exit 2; }
     set_key call_name "$2"
     [ -n "$2" ] && say done "$2, $(sample example)"
     ;;
@@ -146,6 +166,6 @@ case "${1:-status}" in
     say done  "$(sample example)"
     ;;
 
-  *) echo 'usage: voiced {start|stop|restart|status|voices|voice F3|tone playful|lang ja|name "X"|chimes|demo|prompt install}' >&2
+  *) echo 'usage: crier {install [agent]|uninstall|update|start|stop|restart|status|voices|voice F3|tone playful|lang ja|name "X"|chimes|demo|prompt install}' >&2
      exit 2 ;;
 esac
