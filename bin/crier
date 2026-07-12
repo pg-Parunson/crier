@@ -16,7 +16,15 @@
 #   crier say "anything"      one-off
 set -u
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# bootstrap.sh symlinks this onto your PATH, so BASH_SOURCE is the symlink, not the
+# script. Follow it to its real home before working out where the repo lives.
+SELF="${BASH_SOURCE[0]}"
+while [ -L "$SELF" ]; do
+  LINK_DIR="$(cd -P "$(dirname "$SELF")" && pwd)"
+  SELF="$(readlink "$SELF")"
+  case "$SELF" in /*) ;; *) SELF="$LINK_DIR/$SELF" ;; esac
+done
+ROOT="$(cd -P "$(dirname "$SELF")/.." && pwd)"
 PY="$ROOT/.venv/bin/python"
 SUPERTONIC="$ROOT/.venv/bin/supertonic"
 LOG="$ROOT/.venv/supertonic.log"

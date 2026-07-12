@@ -59,11 +59,11 @@ cat <<EOF
 
 $(printf '\033[1mDone.\033[0m')  Restart your agent session so it picks up the hooks.
 
-  bin/crier demo                hear every event
-  bin/crier voices              hear all 10 voices, then: bin/crier voice M3
-  bin/crier lang en             ko | en | ja
-  bin/crier tone playful        plain | friendly | playful
-  bin/crier name "Jaeho"        it'll use your name now and then
-  bin/crier prompt install      let the agent write its own spoken line (recommended)
+  crier      demo                hear every event
+  crier      voices              hear all 10 voices, then: bin/crier voice M3
+  crier      lang en             ko | en | ja
+  crier      tone playful        plain | friendly | playful
+  crier      name "Jaeho"        it'll use your name now and then
+  crier      prompt install      let the agent write its own spoken line (recommended)
 
 EOF
