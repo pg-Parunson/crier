@@ -41,7 +41,7 @@ if [[ -f "$ROOT/config.json" ]]; then
   ok "config.json exists — left alone"
 else
   cp "$ROOT/config.default.json" "$ROOT/config.json"
-  ok "config.json created  (lang=ko, voice=F2 — change with 'bin/crier lang en')"
+  ok "config.json created  (lang=ko, voice=F2 — change with 'crier lang en')"
 fi
 
 if [[ "$AGENT" == "--no-hooks" ]]; then
@@ -59,11 +59,11 @@ cat <<EOF
 
 $(printf '\033[1mDone.\033[0m')  Restart your agent session so it picks up the hooks.
 
-  crier      demo                hear every event
-  crier      voices              hear all 10 voices, then: bin/crier voice M3
-  crier      lang en             ko | en | ja
-  crier      tone playful        plain | friendly | playful
-  crier      name "Jaeho"        it'll use your name now and then
-  crier      prompt install      let the agent write its own spoken line (recommended)
+  crier demo                hear every event
+  crier voices              hear all 10 voices, then: crier voice M3
+  crier lang en             ko | en | ja
+  crier tone playful        plain | friendly | playful
+  crier name "Jaeho"        it'll use your name now and then
+  crier prompt install      let the agent write its own spoken line (recommended)
 
 EOF
