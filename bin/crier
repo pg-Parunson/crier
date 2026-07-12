@@ -14,6 +14,7 @@
 #   crier chimes [soft|bell]  hear them, or switch (soft is gentler)
 #   crier demo                hear every event
 #   crier prompt install      let the agent write its own spoken line
+#   crier mute / unmute       going into a meeting
 #   crier say "anything"      one-off
 set -u
 
@@ -58,7 +59,12 @@ set_key() {
 import json, pathlib, sys
 key, value, path = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
 cfg = json.loads(path.read_text())
-cfg[key] = float(value) if key == "name_chance" else value
+if key == "name_chance":
+    cfg[key] = float(value)
+elif value in ("true", "false"):
+    cfg[key] = value == "true"
+else:
+    cfg[key] = value
 path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
 print(f"{key} = {cfg[key]!r}")
 PY
@@ -113,7 +119,7 @@ case "${1:-status}" in
   stop)    pkill -f "supertonic serve --port $PORT" 2>/dev/null && echo "stopped" || echo "not running" ;;
   restart) pkill -f "supertonic serve --port $PORT" 2>/dev/null; sleep 1; start ;;
   status)
-    up && echo "running — 127.0.0.1:$PORT · voice=$(cfg voice) · lang=$(cfg lang) · tone=$(cfg tone) · name=$(cfg call_name)" \
+    up && echo "running — voice=$(cfg voice) · lang=$(cfg lang) · tone=$(cfg tone) · name=$(cfg call_name)$([ "$(cfg muted)" = "True" ] && echo " · MUTED")" \
        || echo "stopped" ;;
 
   setup)
@@ -146,6 +152,10 @@ case "${1:-status}" in
 
   say)     say done "${2:-hello}" ;;
   prompt)  "$PY" "$ROOT/bin/prompt.py" "${@:2}" ;;
+
+  # Going into a meeting. The daemon stays warm so unmuting is instant.
+  mute)    set_key muted true  >/dev/null; pkill -x afplay 2>/dev/null; echo "muted" ;;
+  unmute)  set_key muted false >/dev/null; echo "unmuted"; say done "$(sample example)" ;;
 
   chimes)
     if [ $# -ge 2 ]; then

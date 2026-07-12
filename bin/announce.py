@@ -350,6 +350,9 @@ def main() -> int:
     except (json.JSONDecodeError, ValueError):
         return 0
 
+    if CFG.get("muted"):
+        return 0  # meeting, headphones off, someone asleep — whatever the reason
+
     try:
         got = line_for(hook)
     except Exception:

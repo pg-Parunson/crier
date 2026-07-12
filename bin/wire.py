@@ -10,6 +10,7 @@ normalizes them, so this file is a routing table, not four integrations.
 """
 
 import json
+import os
 import shutil
 import sys
 import time
@@ -77,6 +78,84 @@ AGENTS = {
 }
 
 
+def codex_home() -> Path:
+    return Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
+
+
+CRIER = f"{ROOT}/bin/crier"
+HINT = "voice M3 | lang ko | tone playful | name Jaeho | mute | unmute | voices | demo"
+BLURB = "Configure crier — voice, language, tone, or mute it"
+
+# `/crier` from inside a session. Claude and Gemini run the shell at expansion time
+# and paste the output straight in, so nothing reaches the model and nothing is
+# spent. Codex can't do that — it has no expansion-time shell — so there the command
+# asks the model to run it, which costs a tool call. That's the best it offers.
+#
+# The absolute path matters: the agent's shell may not have ~/.local/bin on PATH.
+COMMANDS = {
+    "claude": (
+        Path.home() / ".claude" / "commands" / "crier.md",
+        f"""---
+description: {BLURB}
+argument-hint: [{HINT}]
+allowed-tools: Bash({CRIER} *)
+disable-model-invocation: true
+---
+!`{CRIER} $ARGUMENTS`
+""",
+    ),
+    "gemini": (
+        Path.home() / ".gemini" / "commands" / "crier.toml",
+        f'''description = "{BLURB}"
+prompt = """
+!{{{CRIER} {{{{args}}}}}}
+"""
+''',
+    ),
+    "codex": (
+        codex_home() / "prompts" / "crier.md",
+        f"""---
+description: {BLURB}
+argument-hint: [{HINT}]
+---
+Run this and show me its output verbatim. Don't explain it, don't add commentary.
+
+```
+{CRIER} $ARGUMENTS
+```
+""",
+    ),
+}
+
+
+def command_file(agent: str, remove: bool) -> None:
+    if agent not in COMMANDS:
+        return  # cursor has no user-level custom commands
+    path, body = COMMANDS[agent]
+    if remove:
+        path.unlink(missing_ok=True)
+        print(f"  /crier removed")
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body)
+    print(f"  /crier → {path}")
+
+    if agent == "gemini":
+        # Otherwise Gemini asks permission every single time the command runs.
+        s = Path.home() / ".gemini" / "settings.json"
+        cfg = {}
+        if s.exists():
+            try:
+                cfg = json.loads(s.read_text())
+            except json.JSONDecodeError:
+                return
+        allowed = cfg.setdefault("tools", {}).setdefault("allowed", [])
+        entry = f"run_shell_command({CRIER})"
+        if entry not in allowed:
+            allowed.append(entry)
+            s.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+
+
 def main() -> int:
     if len(sys.argv) < 2 or sys.argv[1] not in AGENTS:
         print(f"usage: wire.py {'|'.join(AGENTS)} [--remove]", file=sys.stderr)
@@ -120,6 +199,7 @@ def main() -> int:
         print(f"  {len(spec['hooks'])} hooks → {path}")
 
     path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+    command_file(name, remove)
     return 0
 
 
