@@ -1,0 +1,14 @@
+# user-local — created by install.sh from config.default.json
+config.json
+
+# environment
+.venv/
+__pycache__/
+*.pyc
+
+# generated at install (bin/earcons.py)
+assets/earcons/*.wav
+
+# local voice-audition scratch (not part of the tool)
+samples/
+voices.html

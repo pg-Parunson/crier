@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# The TTS daemon, and everything you'd want to tweak by ear.
+# The daemon keeps the model resident, so a hook only ever pays for synthesis.
+#
+#   voiced start | stop | restart | status
+#   voiced voices              hear all 10 voices
+#   voiced voice M3            F1–F5 (female) · M1–M5 (male)
+#   voiced tone playful        plain | friendly | playful
+#   voiced lang ja             ko | en | ja
+#   voiced name "Jaeho"        used now and then, not every time ("" turns it off)
+#   voiced chimes              hear the 6 chimes
+#   voiced demo                hear every event
+#   voiced prompt install      let the agent write its own spoken line
+#   voiced say "anything"      one-off
+set -u
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PY="$ROOT/.venv/bin/python"
+SUPERTONIC="$ROOT/.venv/bin/supertonic"
+LOG="$ROOT/.venv/supertonic.log"
+CFG="$ROOT/config.json"
+
+cfg()  { "$PY" -c "import json;print(json.load(open('$CFG')).get('$1',''))"; }
+PORT="$(cfg port)"
+up()   { nc -z 127.0.0.1 "$PORT" 2>/dev/null; }
+
+start() {
+  "$PY" "$ROOT/bin/earcons.py" >/dev/null 2>&1     # generate chimes if missing
+  up && return 0
+  "$SUPERTONIC" serve --port "$PORT" --log-level warning >"$LOG" 2>&1 &
+  disown
+  for _ in $(seq 1 60); do
+    up && { echo "up — 127.0.0.1:$PORT (voice=$(cfg voice))"; return 0; }
+    sleep 0.5
+  done
+  echo "failed to start. log: $LOG" >&2; tail -5 "$LOG" >&2; return 1
+}
+
+# say <chime> <sentence> — takes the exact path a hook takes
+say() {
+  start >/dev/null || exit 1
+  printf '%s\n%s' "$1" "$2" | AGENT_VOICE_CHILD=1 "$PY" "$ROOT/bin/announce.py"
+}
+
+set_key() {
+  "$PY" - "$1" "$2" "$CFG" <<'PY'
+import json, pathlib, sys
+key, value, path = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
+cfg = json.loads(path.read_text())
+cfg[key] = float(value) if key == "name_chance" else value
+path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+print(f"{key} = {cfg[key]!r}")
+PY
+}
+
+# sample <key> — a random line of the current locale/tone, for previews
+sample() {
+  "$PY" - "$ROOT" "$1" <<'PY'
+import json, pathlib, random, sys
+root, key = pathlib.Path(sys.argv[1]), sys.argv[2]
+cfg = json.loads((root / "config.json").read_text())
+loc = json.loads((root / "locales.json").read_text())[cfg["lang"]]
+if key == "example":
+    print(loc["prompt"]["example"])
+elif key == "error":
+    print(random.choice(loc[cfg["tone"]]["error"]).format(what=loc["errors"]["rate_limit"]))
+else:
+    print(random.choice(loc[cfg["tone"]][key]).format(what="rm"))
+PY
+}
+
+preview_voice() {
+  "$PY" - "$1" "$PORT" "$ROOT" <<'PY'
+import json, pathlib, subprocess, sys, tempfile, urllib.request
+voice, port, root = sys.argv[1], sys.argv[2], pathlib.Path(sys.argv[3])
+cfg = json.loads((root / "config.json").read_text())
+loc = json.loads((root / "locales.json").read_text())[cfg["lang"]]
+body = json.dumps({"text": loc["prompt"]["example"], "voice": voice,
+                   "lang": cfg["lang"], "response_format": "wav"}).encode()
+req = urllib.request.Request(f"http://127.0.0.1:{port}/v1/tts", data=body,
+                             headers={"Content-Type": "application/json"})
+with urllib.request.urlopen(req, timeout=30) as r, \
+        tempfile.NamedTemporaryFile(suffix=".wav") as f:
+    f.write(r.read()); f.flush()
+    subprocess.run(["afplay" if sys.platform == "darwin" else "aplay", f.name])
+PY
+}
+
+case "${1:-status}" in
+  start)   start ;;
+  stop)    pkill -f "supertonic serve --port $PORT" 2>/dev/null && echo "stopped" || echo "not running" ;;
+  restart) pkill -f "supertonic serve --port $PORT" 2>/dev/null; sleep 1; start ;;
+  status)
+    up && echo "running — 127.0.0.1:$PORT · voice=$(cfg voice) · lang=$(cfg lang) · tone=$(cfg tone) · name=$(cfg call_name)" \
+       || echo "stopped" ;;
+
+  say)     say done "${2:-hello}" ;;
+  chimes)  "$PY" "$ROOT/bin/earcons.py" --play ;;
+  prompt)  "$PY" "$ROOT/bin/prompt.py" "${2:-show}" ;;
+
+  voices)
+    start >/dev/null || exit 1
+    echo "current: $(cfg voice)"
+    for v in F1 F2 F3 F4 F5 M1 M2 M3 M4 M5; do
+      printf '  %s\n' "$v"
+      preview_voice "$v"
+    done
+    echo
+    echo "pick one:  voiced voice F3"
+    ;;
+
+  voice)
+    [ $# -ge 2 ] || { echo "usage: voiced voice F1|…|F5|M1|…|M5" >&2; exit 2; }
+    case "$2" in F[1-5]|M[1-5]) ;; *) echo "F1–F5 or M1–M5" >&2; exit 2 ;; esac
+    set_key voice "$2"
+    say done "$(sample example)"
+    ;;
+
+  tone)
+    [ $# -ge 2 ] || { echo "usage: voiced tone plain|friendly|playful" >&2; exit 2; }
+    case "$2" in plain|friendly|playful) ;; *) echo "plain · friendly · playful" >&2; exit 2 ;; esac
+    set_key tone "$2"
+    "$PY" "$ROOT/bin/prompt.py" install >/dev/null   # the tone lives in the prompt too
+    say ask "$(sample permission_bash)"
+    ;;
+
+  lang)
+    [ $# -ge 2 ] || { echo "usage: voiced lang ko|en|ja" >&2; exit 2; }
+    case "$2" in ko|en|ja) ;; *) echo "ko · en · ja" >&2; exit 2 ;; esac
+    set_key lang "$2"
+    "$PY" "$ROOT/bin/prompt.py" install >/dev/null
+    say done "$(sample example)"
+    ;;
+
+  name)
+    [ $# -ge 2 ] || { echo 'usage: voiced name "Jaeho"    ("" turns it off)' >&2; exit 2; }
+    set_key call_name "$2"
+    [ -n "$2" ] && say done "$2, $(sample example)"
+    ;;
+
+  demo)
+    start >/dev/null || exit 1
+    say ask   "$(sample permission_bash)" ; sleep 0.5
+    say error "$(sample error)"           ; sleep 0.5
+    say idle  "$(sample idle)"            ; sleep 0.5
+    say done  "$(sample example)"
+    ;;
+
+  *) echo 'usage: voiced {start|stop|restart|status|voices|voice F3|tone playful|lang ja|name "X"|chimes|demo|prompt install}' >&2
+     exit 2 ;;
+esac
