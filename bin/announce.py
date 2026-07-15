@@ -61,19 +61,10 @@ def phrase(key: str, **kw) -> str:
     return random.choice(options).format(**kw)
 
 
-# At the top intensity crier occasionally editorializes — a quip that has nothing to
-# do with the turn ("yo Marco, come look already"). Only on 5, only sometimes, so it
-# stays a surprise instead of a tic.
-QUIP_CHANCE = 0.4
-
-
-def maybe_quip() -> str | None:
-    if _LEVEL != "5":
-        return None
-    quips = TONE.get("quips")
-    if quips and random.random() < QUIP_CHANCE:
-        return random.choice(quips)
-    return None
+# No canned quips. A fixed set of "funny" lines is exactly the cringe we're avoiding —
+# hear "yo Marco, I'm DONE" six times and it's a memorized bit, not a personality.
+# At level 5 the humor comes entirely from the agent, which writes the line fresh from
+# the turn's context every time. The phrase file only backstops the quiet levels.
 
 
 # --- the agent's reply -> one speakable line ---------------------------------
@@ -203,12 +194,7 @@ def line_for(raw: dict) -> tuple[str, str] | None:
         if not EV["task_complete"]:
             return None
         said = summarize(hook.get("last_assistant_message") or "")
-        if not said:
-            return None
-        # On level 5, sometimes tack a quip onto the front. The real report still
-        # follows, so it's a wink, not a loss of information.
-        quip = maybe_quip()
-        return ("done", f"{quip} {said}" if quip else said)
+        return ("done", said) if said else None
 
     if ev == "StopFailure":
         if not EV["error"]:
