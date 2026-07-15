@@ -44,7 +44,9 @@ LEGACY = ("<!-- agent-voice:begin -->", "<!-- agent-voice:end -->")
 def snippet(fenced: bool = False) -> str:
     loc = LOCALES.get(CFG.get("lang", "en")) or LOCALES["en"]
     p = loc["prompt"]
-    tone = loc["tone_hint"].get(CFG.get("tone", "plain"), "")
+    _alias = {"plain": "2", "friendly": "3", "playful": "4"}
+    _lvl = _alias.get(str(CFG.get("tone", "3")), str(CFG.get("tone", "3")))
+    tone = loc["tone_hint"].get(_lvl, loc["tone_hint"].get("3", ""))
     marker = CFG["marker"]
 
     body = "\n".join([

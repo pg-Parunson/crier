@@ -1,6 +1,6 @@
 {
   "lang": "en",
-  "tone": "friendly",
+  "tone": "3",
   "voice": "F2",
   "call_name": "",
   "name_chance": 0.35,
@@ -23,5 +23,6 @@
     "compact": true,
     "agent_start": false,
     "agent_done": false
-  }
+  },
+  "max_chars_playful": 360
 }

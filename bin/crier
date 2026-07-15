@@ -8,7 +8,7 @@
 #   crier start | stop | restart | status
 #   crier voices              hear all 10 voices
 #   crier voice M3            F1–F5 (female) · M1–M5 (male)
-#   crier tone playful        plain | friendly | playful
+#   crier mood 5              tone 1..5 (1 deadpan · 3 friendly · 5 goofball)
 #   crier lang ja             ko | en | ja
 #   crier name "Jaeho"        used now and then, not every time ("" turns it off)
 #   crier chimes [soft|bell]  hear them, or switch (soft is gentler)
@@ -100,7 +100,10 @@ cfg = json.loads((root / "config.json").read_text())
 loc = json.loads((root / "locales.json").read_text())[cfg["lang"]]
 
 if key.startswith("cli."):
-    print(loc["cli"][key[4:]].format(what=what))
+    node = loc["cli"]
+    for part in key[4:].split("."):          # cli.mood.5 → loc["cli"]["mood"]["5"]
+        node = node[part]
+    print(node.format(what=what) if isinstance(node, str) else node)
 elif key == "example":
     print(loc["prompt"]["example"])
 elif key == "error":
@@ -201,12 +204,16 @@ case "${1:-status}" in
     say done "$(sample cli.voice)"
     ;;
 
-  tone)
-    [ $# -ge 2 ] || { echo "usage: crier tone plain|friendly|playful" >&2; exit 2; }
-    case "$2" in plain|friendly|playful) ;; *) echo "plain · friendly · playful" >&2; exit 2 ;; esac
-    set_key tone "$2"
-    "$PY" "$ROOT/bin/prompt.py" install >/dev/null   # the tone lives in the prompt too
-    say done "$(sample cli.tone)"
+  tone|mood)
+    # 1 = deadpan · 3 = friendly (default) · 5 = goofball. Words still accepted.
+    A="${2:-}"
+    case "$A" in
+      plain) A=2 ;; friendly) A=3 ;; playful) A=4 ;;
+    esac
+    case "$A" in 1|2|3|4|5) ;; *) echo "usage: crier mood 1..5   (1 deadpan · 3 friendly · 5 goofball)" >&2; exit 2 ;; esac
+    set_key tone "$A"
+    "$PY" "$ROOT/bin/prompt.py" install >/dev/null   # the mood lives in the agent's prompt too
+    say done "$(sample "cli.mood.$A")"
     ;;
 
   lang)
@@ -231,6 +238,6 @@ case "${1:-status}" in
     say done  "$(sample example)"
     ;;
 
-  *) echo 'usage: crier {install [agent]|uninstall|update|start|stop|restart|status|voices|voice F3|tone playful|lang ja|name "X"|chimes|demo|prompt install}' >&2
+  *) echo 'usage: crier {install [agent]|uninstall|update|start|stop|restart|status|voices|voice F3|mood 5|lang ja|name "X"|chimes|demo|prompt install}' >&2
      exit 2 ;;
 esac

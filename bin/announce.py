@@ -37,7 +37,11 @@ CFG = json.loads((ROOT / "config.json").read_text())
 LOCALES = json.loads((ROOT / "locales.json").read_text())
 
 L = LOCALES.get(CFG.get("lang", "en")) or LOCALES["en"]
-TONE = L.get(CFG.get("tone", "plain")) or L["plain"]
+# tone is an intensity 1–5 (1 = deadpan, 5 = goofball). Old names still resolve so a
+# config from before the change doesn't break.
+_ALIAS = {"plain": "2", "friendly": "3", "playful": "4"}
+_LEVEL = _ALIAS.get(str(CFG.get("tone", "3")), str(CFG.get("tone", "3")))
+TONE = L.get(_LEVEL) or L.get("3") or L.get("friendly") or {}
 EV = CFG["events"]
 
 STATE = Path(tempfile.gettempdir()) / "agent-voice"
@@ -53,8 +57,23 @@ def phrase(key: str, **kw) -> str:
     carries real information — what just happened — is written by the agent itself
     (see summarize), because a sentence canned in a file cannot know that.
     """
-    options = TONE.get(key) or L["plain"].get(key) or [""]
+    options = TONE.get(key) or L.get("2", {}).get(key) or L.get("plain", {}).get(key) or [""]
     return random.choice(options).format(**kw)
+
+
+# At the top intensity crier occasionally editorializes — a quip that has nothing to
+# do with the turn ("yo Marco, come look already"). Only on 5, only sometimes, so it
+# stays a surprise instead of a tic.
+QUIP_CHANCE = 0.4
+
+
+def maybe_quip() -> str | None:
+    if _LEVEL != "5":
+        return None
+    quips = TONE.get("quips")
+    if quips and random.random() < QUIP_CHANCE:
+        return random.choice(quips)
+    return None
 
 
 # --- the agent's reply -> one speakable line ---------------------------------
@@ -96,6 +115,10 @@ SENTENCE = re.compile(r"[^.!?。？！\n]+[.!?。？！]?")
 # spoken line until every open session is restarted.
 MARKERS = [CFG["marker"], "[say]", "[말]", "[안내]", "[요약]", "[info]", "[brief]", "[案内]"]
 
+# Goofball mode rambles on purpose, so give it room. Everything else stays tight —
+# a status update that runs long is just annoying.
+MAX_CHARS = CFG.get("max_chars_playful", 360) if _LEVEL == "5" else CFG["max_chars"]
+
 
 def summarize(reply: str) -> str:
     """Prefer the line the agent wrote to be spoken; else fall back to its own words."""
@@ -103,7 +126,7 @@ def summarize(reply: str) -> str:
         s = line.strip()
         for marker in MARKERS:
             if s.startswith(marker):
-                return prose(s[len(marker):]).strip()[: CFG["max_chars"]]
+                return prose(s[len(marker):]).strip()[: MAX_CHARS]
 
     # No marker — the prompt isn't installed, or the agent skipped it. Take the last
     # sentence if it's a question (that's what you have to answer), else the first,
@@ -112,7 +135,7 @@ def summarize(reply: str) -> str:
     if not lines:
         return ""
     pick = lines[-1] if lines[-1].endswith(("?", "？")) else lines[0]
-    return pick[: CFG["max_chars"]]
+    return pick[: MAX_CHARS]
 
 
 # --- an event -> (chime, sentence) -------------------------------------------
@@ -180,7 +203,12 @@ def line_for(raw: dict) -> tuple[str, str] | None:
         if not EV["task_complete"]:
             return None
         said = summarize(hook.get("last_assistant_message") or "")
-        return ("done", said) if said else None
+        if not said:
+            return None
+        # On level 5, sometimes tack a quip onto the front. The real report still
+        # follows, so it's a wink, not a loss of information.
+        quip = maybe_quip()
+        return ("done", f"{quip} {said}" if quip else said)
 
     if ev == "StopFailure":
         if not EV["error"]:

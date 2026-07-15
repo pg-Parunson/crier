@@ -25,9 +25,11 @@
       "unknown": "알 수 없는 오류입니다"
     },
     "tone_hint": {
-      "plain": "군더더기 없이 사실만. 존댓말.",
-      "friendly": "동료에게 말하듯 편하게. 존댓말이되 딱딱하지 않게.",
-      "playful": "가볍게, 유머를 살짝. 단 정보는 정확하게."
+      "1": "사실만 간결하게. 감정 표현 없이 건조하게. 존댓말.",
+      "2": "군더더기 없이 사실만. 존댓말.",
+      "3": "동료에게 말하듯 편하게. 존댓말이되 딱딱하지 않게.",
+      "4": "유쾌하고 장난기 있게. 반말 섞고 드립도 가끔. 감정 실어서 — 근데 정보는 정확히.",
+      "5": "완전 풀어진 장난꾸러기 모드. 매번 다르게, 살아있는 사람처럼 아무말이나 해. 반말로 투정·너스레·자화자찬·드립·감탄사 다 좋고, 가끔 길게 하소연하듯 늘어놔도 되고, 갑자기 노래 한 소절 흥얼거려도 되고, 혼잣말해도 돼. 요즘(2026년) 말투로 자연스럽게 — 억지 유행어 말고 진짜 친구가 옆에서 툭 던지듯. 단 딱 하나, 무슨 작업을 했고 내가 뭘 하면 되는지는 그 아무말 속에 반드시 정확히 넣어. 정보 없는 순수 개그면 실패야. 매번 새로."
     },
     "prompt": {
       "title": "음성 안내",
@@ -165,7 +167,224 @@
       "lang": "이제 한국어로 말합니다.",
       "tone": "말투를 바꿨습니다. 이런 느낌이에요.",
       "unmute": "다시 말할게요.",
-      "setup": "준비됐습니다."
+      "setup": "준비됐습니다.",
+      "mood": {
+        "1": "말투를 진지하게 바꿨습니다.",
+        "2": "말투를 담백하게 바꿨어요.",
+        "3": "말투를 친근하게 바꿨어요.",
+        "4": "말투 좀 가볍게 갈게~",
+        "5": "오케이! 이제부터 장난 좀 친다? 각오해라~"
+      }
+    },
+    "1": {
+      "permission_bash": [
+        "{what} 실행 승인 요청.",
+        "{what} 실행 대기."
+      ],
+      "permission_file": [
+        "{what} 수정 승인 요청.",
+        "{what} 수정 대기."
+      ],
+      "permission_other": [
+        "{what} 승인 요청.",
+        "{what} 대기."
+      ],
+      "permission_described": [
+        "{what}. 승인 요청.",
+        "{what}. 대기."
+      ],
+      "agent_needs_input": [
+        "에이전트 입력 대기."
+      ],
+      "idle": [
+        "대기.",
+        "입력 대기."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. 확인 요망."
+      ],
+      "compact": [
+        "컨텍스트 정리."
+      ],
+      "agent_start": [
+        "시작."
+      ],
+      "agent_done": [
+        "{what} 완료."
+      ]
+    },
+    "5": {
+      "permission_bash": [
+        "{what} 돌려도 돼? 책임은 노.",
+        "야 {what} 이거 눌러도 되냐?",
+        "{what}... 고? 사인 좀."
+      ],
+      "permission_file": [
+        "{what} 좀 만져도 되지?",
+        "{what} 열어버린다? 콜?"
+      ],
+      "permission_other": [
+        "{what} 가도 되지?",
+        "{what} 한다? 오케이?"
+      ],
+      "permission_described": [
+        "{what}. 고?",
+        "{what}. 콜?",
+        "{what}... 책임은 안 진다?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 손 들었어. 봐줘."
+      ],
+      "idle": [
+        "심심해 죽겠네. 뭐 좀 시켜봐.",
+        "야 나 논다. 언제까지 기다려?",
+        "할 거 없냐... 대기 중."
+      ],
+      "error": [
+        "{what}. 내 탓 아님.",
+        "{what}. 이거 나만 터지냐.",
+        "{what}. 아 좀 쉬자."
+      ],
+      "compact": [
+        "머리 꽉 찼다. 좀 비우고 온다.",
+        "기억 터지기 직전. 정리 좀."
+      ],
+      "agent_start": [
+        "간다!",
+        "가보자고.",
+        "출발~"
+      ],
+      "agent_done": [
+        "{what} 끝! 나 잘했지?",
+        "{what} 다 했다 야~"
+      ],
+      "quips": [
+        "야~ 마르코~ 다 했다. 와서 좀 봐라.",
+        "나만 일하냐... 다 끝냈다.",
+        "이야 이것도 내가 했네. 커피 한 잔 어때?",
+        "나 오늘 너무 많이 했다. 먼저 퇴근한다 농담이고.",
+        "다 했어. 칭찬은 안 바란다... 근데 해주면 좋고.",
+        "끝! 나 없으면 어쩔 뻔했냐 진짜."
+      ]
+    },
+    "2": {
+      "permission_bash": [
+        "{what} 명령 실행 허가가 필요합니다.",
+        "{what} 실행해도 될까요?"
+      ],
+      "permission_file": [
+        "{what} 수정 허가가 필요합니다.",
+        "{what} 고쳐도 될까요?"
+      ],
+      "permission_other": [
+        "{what} 허가가 필요합니다.",
+        "{what} 진행해도 될까요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 입력을 기다립니다."
+      ],
+      "idle": [
+        "대기 중입니다.",
+        "다음 지시 기다립니다."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. 확인이 필요합니다."
+      ],
+      "compact": [
+        "컨텍스트가 가득 차서 정리합니다."
+      ],
+      "agent_start": [
+        "시작하겠습니다."
+      ],
+      "agent_done": [
+        "{what} 작업이 끝났습니다."
+      ],
+      "permission_described": [
+        "{what}. 해도 될까요?",
+        "{what}. 허가가 필요합니다."
+      ]
+    },
+    "3": {
+      "permission_bash": [
+        "{what} 명령 돌리려는데 괜찮을까요?",
+        "{what} 실행해도 될까요?",
+        "{what} 좀 돌려볼게요. 허락해 주실래요?"
+      ],
+      "permission_file": [
+        "{what} 좀 건드려도 될까요?",
+        "{what} 고쳐도 괜찮을까요?"
+      ],
+      "permission_other": [
+        "{what} 진행해도 될까요?",
+        "{what} 해도 괜찮을까요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 물어볼 게 있답니다."
+      ],
+      "idle": [
+        "다음 지시 기다리는 중이에요.",
+        "기다리고 있어요."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. 한번 봐주셔야 할 것 같아요."
+      ],
+      "compact": [
+        "컨텍스트 정리 좀 하고 올게요."
+      ],
+      "agent_start": [
+        "시작할게요."
+      ],
+      "agent_done": [
+        "{what} 쪽은 끝났어요."
+      ],
+      "permission_described": [
+        "{what}. 해도 될까요?",
+        "{what}, 괜찮을까요?",
+        "{what}. 진행할게요, 괜찮죠?"
+      ]
+    },
+    "4": {
+      "permission_bash": [
+        "{what} 돌려도 되나요? 책임은 안 집니다.",
+        "{what} 실행 대기 중. 고 하실까요?",
+        "{what} 명령, 사인 한 번만 주시죠."
+      ],
+      "permission_file": [
+        "{what} 손 좀 봐도 될까요?",
+        "{what} 열어봐도 되죠?"
+      ],
+      "permission_other": [
+        "{what} 가도 될까요?",
+        "{what} 해도 되나요?"
+      ],
+      "agent_needs_input": [
+        "에이전트가 손 들었습니다."
+      ],
+      "idle": [
+        "심심합니다. 시키실 거 없나요?",
+        "대기 중. 언제든지요."
+      ],
+      "error": [
+        "{what}. 제 탓은 아닙니다.",
+        "{what}. 잠시 쉬어가시죠."
+      ],
+      "compact": [
+        "기억이 가득 찼습니다. 좀 비우고 오겠습니다."
+      ],
+      "agent_start": [
+        "갑니다."
+      ],
+      "agent_done": [
+        "{what} 끝!"
+      ],
+      "permission_described": [
+        "{what}. 고 하실까요?",
+        "{what}. 사인 한 번만 주시죠.",
+        "{what}. 책임은 안 집니다."
+      ]
     }
   },
   "en": {
@@ -193,9 +412,11 @@
       "unknown": "Something went wrong"
     },
     "tone_hint": {
-      "plain": "Just the facts. No filler.",
-      "friendly": "Like a colleague talking to you. Warm but not chatty.",
-      "playful": "Light, a touch of humor — but never at the expense of the facts."
+      "1": "Facts only, dry, no emotion.",
+      "2": "Just the facts. No filler.",
+      "3": "Like a colleague talking to you. Warm but not chatty.",
+      "4": "Playful and upbeat. Casual, the odd joke, some personality — but keep the facts right.",
+      "5": "Full goofball mode, off the leash. Different every time, like an actual person just talking. Whine, brag, riff, exclaim, ramble a little, hum a line of a song, mutter to yourself — all fair game. Sound like 2026, not a forced meme — like a friend tossing off a comment next to you. The one rule: what you did and what I should do next has to land, accurately, somewhere in the ramble. Pure comedy with no info is a fail. Never the same line twice."
     },
     "prompt": {
       "title": "Spoken summary",
@@ -331,7 +552,223 @@
       "lang": "I'll speak English from now on.",
       "tone": "Tone changed. This is the new one.",
       "unmute": "I'm back.",
-      "setup": "All set."
+      "setup": "All set.",
+      "mood": {
+        "1": "Switched to a serious tone.",
+        "2": "Tone set to plain.",
+        "3": "Tone set to friendly.",
+        "4": "Loosening up a bit~",
+        "5": "Alright! Goofball mode on. You asked for it~"
+      }
+    },
+    "1": {
+      "permission_bash": [
+        "Approval requested: {what}.",
+        "{what} pending."
+      ],
+      "permission_file": [
+        "Approval to edit {what}.",
+        "{what} pending."
+      ],
+      "permission_other": [
+        "Approval requested: {what}.",
+        "{what} pending."
+      ],
+      "permission_described": [
+        "{what}. Approve?",
+        "{what}. Pending."
+      ],
+      "agent_needs_input": [
+        "Subagent awaiting input."
+      ],
+      "idle": [
+        "Idle.",
+        "Awaiting input."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. Review required."
+      ],
+      "compact": [
+        "Compacting context."
+      ],
+      "agent_start": [
+        "Starting."
+      ],
+      "agent_done": [
+        "{what} complete."
+      ]
+    },
+    "5": {
+      "permission_bash": [
+        "{what} — we doing this? No refunds.",
+        "yo can I hit {what}?",
+        "{what}... gimme the go."
+      ],
+      "permission_file": [
+        "Can I poke {what}?",
+        "Opening {what}, cool?"
+      ],
+      "permission_other": [
+        "{what}, green light?",
+        "{what}, we good?"
+      ],
+      "permission_described": [
+        "{what}. Go?",
+        "{what}. Deal?",
+        "{what}... not my fault though?"
+      ],
+      "agent_needs_input": [
+        "Subagent's got its hand up. Look."
+      ],
+      "idle": [
+        "Bored outta my mind. Gimme something.",
+        "Yo I'm just sitting here.",
+        "Nothing to do... waiting."
+      ],
+      "error": [
+        "{what}. Not my fault.",
+        "{what}. Why's it always me.",
+        "{what}. Break time, honestly."
+      ],
+      "compact": [
+        "Head's full. Clearing it out.",
+        "About to overflow. Tidying up."
+      ],
+      "agent_start": [
+        "Here we go!",
+        "Let's gooo.",
+        "Off we go~"
+      ],
+      "agent_done": [
+        "{what} — nailed it.",
+        "{what}, done and dusted, ha."
+      ],
+      "quips": [
+        "Yo Marco~ I'm done. Come look already.",
+        "Am I the only one working here... all done.",
+        "Did this one too. Coffee?",
+        "Worked way too hard today. Clocking out — kidding.",
+        "Done. Not asking for praise... but I'll take it.",
+        "Finished! What would you do without me, seriously."
+      ]
+    },
+    "2": {
+      "permission_bash": [
+        "{what} needs approval.",
+        "May I run {what}?"
+      ],
+      "permission_file": [
+        "{what} needs approval to edit.",
+        "May I edit {what}?"
+      ],
+      "permission_other": [
+        "{what} needs approval.",
+        "May I proceed with {what}?"
+      ],
+      "agent_needs_input": [
+        "A subagent is waiting on you."
+      ],
+      "idle": [
+        "Waiting.",
+        "Standing by."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. Take a look."
+      ],
+      "compact": [
+        "Context is full. Compacting."
+      ],
+      "agent_start": [
+        "Starting."
+      ],
+      "agent_done": [
+        "{what} finished."
+      ],
+      "permission_described": [
+        "{what}. May I?",
+        "{what}. Needs your approval."
+      ]
+    },
+    "3": {
+      "permission_bash": [
+        "Mind if I run {what}?",
+        "Can I go ahead with {what}?",
+        "I'd like to run {what} — okay?"
+      ],
+      "permission_file": [
+        "Mind if I touch {what}?",
+        "Okay if I edit {what}?"
+      ],
+      "permission_other": [
+        "Okay if I go ahead with {what}?",
+        "Mind if I do {what}?"
+      ],
+      "agent_needs_input": [
+        "A subagent has a question for you."
+      ],
+      "idle": [
+        "Still here whenever you're ready.",
+        "Waiting on you."
+      ],
+      "error": [
+        "{what}.",
+        "{what}. Might want to check that."
+      ],
+      "compact": [
+        "Going to tidy up the context a bit."
+      ],
+      "agent_start": [
+        "Off we go."
+      ],
+      "agent_done": [
+        "{what} is done."
+      ],
+      "permission_described": [
+        "{what}. Okay if I go ahead?",
+        "{what} — mind if I do?"
+      ]
+    },
+    "4": {
+      "permission_bash": [
+        "{what}. Shall we? I take no responsibility.",
+        "{what} is loaded. Pull the trigger?",
+        "{what} awaits your signature."
+      ],
+      "permission_file": [
+        "Can I have a poke at {what}?",
+        "Opening {what} — you good with that?"
+      ],
+      "permission_other": [
+        "{what}. Green light?",
+        "{what}. We doing this?"
+      ],
+      "agent_needs_input": [
+        "A subagent has its hand up."
+      ],
+      "idle": [
+        "Bored. Got anything?",
+        "Idling. At your service."
+      ],
+      "error": [
+        "{what}. Not my fault.",
+        "{what}. Coffee break, maybe."
+      ],
+      "compact": [
+        "Memory's full. Off to clear my head."
+      ],
+      "agent_start": [
+        "Here we go."
+      ],
+      "agent_done": [
+        "{what} — done and dusted."
+      ],
+      "permission_described": [
+        "{what}. Shall we?",
+        "{what}. Just need your signature.",
+        "{what}. I take no responsibility."
+      ]
     }
   },
   "ja": {
@@ -359,9 +796,11 @@
       "unknown": "不明なエラーです"
     },
     "tone_hint": {
-      "plain": "事実だけを簡潔に。丁寧語で。",
-      "friendly": "同僚に話しかけるように。丁寧だが堅すぎず。",
-      "playful": "軽く、少しユーモアを。ただし情報は正確に。"
+      "1": "事実のみ簡潔に。感情表現なし。丁寧語。",
+      "2": "事実だけを簡潔に。丁寧語。",
+      "3": "同僚に話しかけるように。丁寧だが堅すぎず。",
+      "4": "陽気で遊び心を。タメ口や軽い冗談も。感情を乗せつつ——情報は正確に。",
+      "5": "完全に緩めたいたずらモード。毎回違う、生きた人間みたいに好き勝手しゃべる。タメ口でぼやき・自慢・ボケ・感嘆詞、たまに長めに愚痴っても、鼻歌で歌の一節を口ずさんでも、独り言でもいい。2026年の自然な口調で——無理な流行語じゃなく、友達が隣でポロッと言う感じ。ただ一つだけ、何をやったか・次に何をすればいいかは、その与太話の中に必ず正確に入れること。情報ゼロの純粋なギャグは失敗。毎回新しく。"
     },
     "prompt": {
       "title": "音声通知",
@@ -494,7 +933,220 @@
       "lang": "これから日本語で話します。",
       "tone": "話し方を変えました。こんな感じです。",
       "unmute": "また話します。",
-      "setup": "準備できました。"
+      "setup": "準備できました。",
+      "mood": {
+        "1": "真面目な口調に変えました。",
+        "2": "淡々とした口調にしました。",
+        "3": "フレンドリーな口調にしました。",
+        "4": "ちょっと軽めにいくね~",
+        "5": "よし!これからふざけるぞ?覚悟しとけ~"
+      }
+    },
+    "1": {
+      "permission_bash": [
+        "{what} 実行の承認依頼。",
+        "{what} 実行待ち。"
+      ],
+      "permission_file": [
+        "{what} 修正の承認依頼。",
+        "{what} 修正待ち。"
+      ],
+      "permission_other": [
+        "{what} 承認依頼。",
+        "{what} 待ち。"
+      ],
+      "permission_described": [
+        "{what}。承認依頼。",
+        "{what}。待機。"
+      ],
+      "agent_needs_input": [
+        "エージェント入力待ち。"
+      ],
+      "idle": [
+        "待機。",
+        "入力待ち。"
+      ],
+      "error": [
+        "{what}。",
+        "{what}。要確認。"
+      ],
+      "compact": [
+        "コンテキスト整理。"
+      ],
+      "agent_start": [
+        "開始。"
+      ],
+      "agent_done": [
+        "{what} 完了。"
+      ]
+    },
+    "5": {
+      "permission_bash": [
+        "{what} やっちゃう?責任は取らん。",
+        "なあ {what} 押していい?",
+        "{what}... ゴーサイン頂戴。"
+      ],
+      "permission_file": [
+        "{what} ちょっと触っていい?",
+        "{what} 開けちゃうよ?"
+      ],
+      "permission_other": [
+        "{what} 行っていい?",
+        "{what} やる?オッケー?"
+      ],
+      "permission_described": [
+        "{what}。ゴー?",
+        "{what}。オッケー?",
+        "{what}... 責任は取らんけど?"
+      ],
+      "agent_needs_input": [
+        "エージェントが手を挙げてる。見て。"
+      ],
+      "idle": [
+        "暇すぎる。何かちょうだい。",
+        "なあ俺、遊んでるぞ。",
+        "やることない... 待機中。"
+      ],
+      "error": [
+        "{what}。俺のせいじゃない。",
+        "{what}。なんでいつも俺。",
+        "{what}。ちょっと休もう。"
+      ],
+      "compact": [
+        "頭いっぱい。整理してくる。",
+        "記憶あふれそう。片付ける。"
+      ],
+      "agent_start": [
+        "行くぞ!",
+        "やったろか。",
+        "出発~"
+      ],
+      "agent_done": [
+        "{what} 完了!俺すごくない?",
+        "{what} 終わったぞ~"
+      ],
+      "quips": [
+        "おーいマルコ~ 終わったぞ。見に来て。",
+        "俺だけ働いてる... 全部終わった。",
+        "これも俺がやった。コーヒーどう?",
+        "今日働きすぎた。お先に失礼... 冗談。",
+        "終わり。褒めは要らんが... くれたら嬉しい。",
+        "完了!俺いなかったらどうすんの、ほんと。"
+      ]
+    },
+    "2": {
+      "permission_bash": [
+        "{what} コマンドの実行許可が必要です。",
+        "{what} を実行してもよろしいですか？"
+      ],
+      "permission_file": [
+        "{what} の修正許可が必要です。",
+        "{what} を修正してもよろしいですか？"
+      ],
+      "permission_other": [
+        "{what} の許可が必要です。",
+        "{what} を進めてもよろしいですか？"
+      ],
+      "agent_needs_input": [
+        "エージェントが入力を待っています。"
+      ],
+      "idle": [
+        "待機中です。",
+        "次の指示をお待ちしています。"
+      ],
+      "error": [
+        "{what}。",
+        "{what}。確認が必要です。"
+      ],
+      "compact": [
+        "コンテキストが一杯なので整理します。"
+      ],
+      "agent_start": [
+        "開始します。"
+      ],
+      "agent_done": [
+        "{what} の作業が終わりました。"
+      ],
+      "permission_described": [
+        "{what}。よろしいですか？",
+        "{what}。許可が必要です。"
+      ]
+    },
+    "3": {
+      "permission_bash": [
+        "{what} を実行したいのですが、よろしいですか？",
+        "{what}、動かしてもいいですか？"
+      ],
+      "permission_file": [
+        "{what} を触ってもいいですか？",
+        "{what} を直しても大丈夫ですか？"
+      ],
+      "permission_other": [
+        "{what}、進めても大丈夫ですか？",
+        "{what} してもいいですか？"
+      ],
+      "agent_needs_input": [
+        "エージェントが聞きたいことがあるそうです。"
+      ],
+      "idle": [
+        "次の指示、待ってますね。",
+        "お待ちしています。"
+      ],
+      "error": [
+        "{what}。",
+        "{what}。ちょっと見ていただけますか。"
+      ],
+      "compact": [
+        "コンテキストを少し整理してきます。"
+      ],
+      "agent_start": [
+        "いきます。"
+      ],
+      "agent_done": [
+        "{what} のほうは終わりました。"
+      ],
+      "permission_described": [
+        "{what}。進めてもいいですか？",
+        "{what}、大丈夫ですか？"
+      ]
+    },
+    "4": {
+      "permission_bash": [
+        "{what}、いっちゃいますか？責任は取りません。",
+        "{what} 実行待機中。ゴーサインを。"
+      ],
+      "permission_file": [
+        "{what}、ちょっと弄ってもいいですか？",
+        "{what} 開けちゃいますよ？"
+      ],
+      "permission_other": [
+        "{what}、行ってもいいですか？",
+        "{what}、やっちゃいます？"
+      ],
+      "agent_needs_input": [
+        "エージェントが手を挙げています。"
+      ],
+      "idle": [
+        "暇です。何かありませんか？",
+        "待機中。いつでもどうぞ。"
+      ],
+      "error": [
+        "{what}。私のせいではありません。",
+        "{what}。ひと休みしましょう。"
+      ],
+      "compact": [
+        "記憶が一杯です。ちょっと整理してきます。"
+      ],
+      "agent_start": [
+        "行きます。"
+      ],
+      "agent_done": [
+        "{what}、完了！"
+      ],
+      "permission_described": [
+        "{what}。いっちゃいますか？",
+        "{what}。ゴーサインを。"
+      ]
     }
   }
 }
