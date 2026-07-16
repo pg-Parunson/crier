@@ -72,6 +72,7 @@ def _state_dir() -> Path:
 STATE = _state_dir()
 PLAY_PID = STATE / "play.pid"
 LAST_SPOKE = STATE / "last"
+HUSH_MARK = STATE / "hush"
 EARCONS = ROOT / "assets" / "earcons"
 
 # Real failures land here — and only real failures. Muted, cooldown and dedupe
@@ -376,8 +377,23 @@ def play(path: Path) -> int:
     return rc
 
 
+def _hushed_since(t0: float) -> bool:
+    """Did the user barge in after this announcement started?
+
+    Killing the current player only silences what is already audible. A sentence
+    still in synthesis when the user starts typing would pop out seconds into
+    their next thought — so hush.sh touches a marker, and we check it in the gap
+    between synthesis finishing and playback starting.
+    """
+    try:
+        return HUSH_MARK.stat().st_mtime >= t0
+    except OSError:
+        return False
+
+
 def perform(chime: str, text: str) -> None:
     STATE.mkdir(parents=True, exist_ok=True)
+    t0 = time.time()
     tmp = Path(tempfile.mkdtemp(prefix="av-", dir=STATE))
     try:
         with ThreadPoolExecutor(max_workers=1) as pool:
@@ -390,7 +406,7 @@ def perform(chime: str, text: str) -> None:
                     return  # barged in before we even spoke
                 time.sleep(CFG["earcons"]["gap_ms"] / 1000)
 
-            if pending.result():
+            if pending.result() and not _hushed_since(t0):
                 play(wav)
     finally:
         PLAY_PID.unlink(missing_ok=True)
