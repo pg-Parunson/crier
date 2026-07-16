@@ -50,31 +50,37 @@ step "Voice engine (Supertonic — local, offline, no API key)"
 if [[ ! -x "$PY" ]]; then
   uv venv --python 3.11 "$ROOT/.venv" >/dev/null 2>&1 || die "could not create the virtualenv"
 fi
-uv pip install --python "$PY" -q "supertonic[serve]" soundfile || die "could not install supertonic"
+# Pinned, and the whole transitive graph frozen to a date: supertonic floors its
+# own deps, so ==1.3.1 alone still lets a breaking numpy 3.x wreck fresh installs.
+# Bump pin + date together, after a smoke test, as part of cutting a release.
+uv pip install --python "$PY" -q --exclude-newer 2026-07-12 \
+  "supertonic[serve]==1.3.1" "soundfile==0.14.0" || die "could not install supertonic"
 ok "supertonic installed"
 
 step "Chimes"
 "$PY" "$ROOT/bin/earcons.py" >/dev/null
 ok "6 chimes synthesized → assets/earcons/  (not bundled — nothing to license)"
 
-if [[ ! -f "$ROOT/config.json" ]]; then
-  # Guess the language from the locale *while creating* the config. Copying the
-  # defaults first and detecting afterwards doesn't work: setup.py takes the config's
-  # value if there is one, so the "en" it just copied in wins and a Japanese user
-  # gets announcements in English.
-  case "${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}" in
-    ko*) GUESS=ko ;;
-    ja*) GUESS=ja ;;
-    *)   GUESS=en ;;
-  esac
-  "$PY" - "$ROOT" "$GUESS" <<'PY'
+# Create-or-heal, unconditionally. Fresh install: defaults + locale guess (guessing
+# after copying doesn't work — setup.py would keep the copied "en"). Existing
+# install: merge in any keys this version added, so `crier update` can never leave
+# a config that crashes the hook. User values always win over defaults.
+case "${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}" in
+  ko*) GUESS=ko ;;
+  ja*) GUESS=ja ;;
+  *)   GUESS=en ;;
+esac
+"$PY" - "$ROOT" "$GUESS" <<'PY'
 import json, pathlib, sys
-root, lang = pathlib.Path(sys.argv[1]), sys.argv[2]
-cfg = json.loads((root / "config.default.json").read_text())
-cfg["lang"] = lang
-(root / "config.json").write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+sys.path.insert(0, str(pathlib.Path(sys.argv[1]) / "bin"))
+import cfg as cfgmod
+root, guess = pathlib.Path(sys.argv[1]), sys.argv[2]
+fresh = not (root / "config.json").exists()
+merged = cfgmod.heal(root)
+if fresh and merged.get("lang") != guess:
+    merged["lang"] = guess
+    (root / "config.json").write_text(json.dumps(merged, indent=2, ensure_ascii=False) + "\n")
 PY
-fi
 
 if (( WIRE )); then
   # Asks three questions if someone's at a terminal — even under `curl | sh`, since

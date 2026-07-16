@@ -1,0 +1,31 @@
+name: Bug report
+description: Something installed but doesn't work, speaks wrong, or broke your setup
+labels: [bug]
+body:
+  - type: textarea
+    id: doctor
+    attributes:
+      label: crier doctor output
+      description: Paste the full output of `crier doctor` — it answers most questions in one shot.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: OS and agent
+      placeholder: "macOS 15.5 (M3) · Claude Code 2.1.x"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to hear, and what happened instead?
+      placeholder: "Finished a task, expected a spoken line, got only the chime / nothing / the wrong language…"
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Recent `~/.crier` changes, other hook tools installed (peon-ping etc.), whether `crier demo` works.

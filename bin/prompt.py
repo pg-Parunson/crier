@@ -32,8 +32,12 @@ import sys
 import time
 from pathlib import Path
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cfg as cfgmod
+
 ROOT = Path(__file__).resolve().parent.parent
-CFG = json.loads((ROOT / "config.json").read_text())
+CFG = cfgmod.load(ROOT)
 LOCALES = json.loads((ROOT / "locales.json").read_text())
 
 BEGIN = "<!-- crier:begin -->"

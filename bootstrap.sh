@@ -53,12 +53,30 @@ if ! command -v uv >/dev/null; then
 fi
 ok "uv $(uv --version | awk '{print $2}')"
 
+# Pin to the newest release tag so a fresh install gets a version somebody
+# deliberately cut, not whatever happens to be on main this minute. The tag is
+# read from the remote BEFORE cloning: a depth-1 clone only carries tags that
+# point at the tip, so `git describe` after the fact can't be trusted. No tags
+# yet (or ls-remote blocked) → fall back to main, same as before.
+TAG="$(git ls-remote --tags --refs --sort=-v:refname "$REPO" 2>/dev/null | head -n1 | sed 's|.*refs/tags/||')"
+
 if [ -d "$HOME_DIR/.git" ]; then
-  git -C "$HOME_DIR" pull --ff-only --quiet
-  ok "updated $HOME_DIR"
+  # A previous install may sit on a detached tag checkout, where `git pull` is
+  # fatal ("not currently on a branch") — fetch+checkout works from any state.
+  git -C "$HOME_DIR" fetch --tags --quiet origin
+  if [ -n "$TAG" ]; then
+    git -C "$HOME_DIR" checkout --quiet "$TAG"
+  else
+    git -C "$HOME_DIR" checkout --quiet main && git -C "$HOME_DIR" pull --ff-only --quiet
+  fi
+  ok "updated $HOME_DIR${TAG:+ → $TAG}"
 else
-  git clone --quiet --depth 1 "$REPO" "$HOME_DIR"
-  ok "cloned to $HOME_DIR"
+  if [ -n "$TAG" ]; then
+    git clone --quiet --depth 1 --branch "$TAG" "$REPO" "$HOME_DIR"
+  else
+    git clone --quiet --depth 1 "$REPO" "$HOME_DIR"
+  fi
+  ok "cloned to $HOME_DIR${TAG:+ ($TAG)}"
 fi
 
 # Forward everything, not just the first word: `sh -s -- codex` and

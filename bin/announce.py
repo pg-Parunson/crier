@@ -30,10 +30,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import audio
+import cfg as cfgmod
 import korean
 
 ROOT = Path(__file__).resolve().parent.parent
-CFG = json.loads((ROOT / "config.json").read_text())
+CFG = cfgmod.load(ROOT)
 LOCALES = json.loads((ROOT / "locales.json").read_text())
 
 L = LOCALES.get(CFG.get("lang", "en")) or LOCALES["en"]
@@ -44,10 +45,49 @@ _LEVEL = _ALIAS.get(str(CFG.get("tone", "3")), str(CFG.get("tone", "3")))
 TONE = L.get(_LEVEL) or L.get("3") or L.get("friendly") or {}
 EV = CFG["events"]
 
-STATE = Path(tempfile.gettempdir()) / "agent-voice"
+def _state_dir() -> Path:
+    """Cross-process state (cooldown, pid, turn dedupe) — private to this user.
+
+    A fixed world-writable /tmp/agent-voice let any local user on a shared Linux
+    box pre-create it, plant symlinks, or forge the pid file our hooks kill. XDG
+    runtime dir is per-user by contract; failing that, a per-UID name chmodded to
+    0700. If something already squats the path (symlink, foreign owner), degrade
+    to a throwaway private dir: cross-process dedupe suffers, security doesn't.
+    """
+    xdg = os.environ.get("XDG_RUNTIME_DIR")
+    d = (Path(xdg) / "agent-voice") if xdg and Path(xdg).is_dir() \
+        else Path(tempfile.gettempdir()) / f"agent-voice-{os.getuid()}"
+    try:
+        d.mkdir(mode=0o700, exist_ok=True)
+        st = os.lstat(d)
+        import stat as stat_mod
+        if stat_mod.S_ISLNK(st.st_mode) or st.st_uid != os.getuid():
+            return Path(tempfile.mkdtemp(prefix="agent-voice-"))
+        os.chmod(d, 0o700)
+    except OSError:
+        return Path(tempfile.mkdtemp(prefix="agent-voice-"))
+    return d
+
+
+STATE = _state_dir()
 PLAY_PID = STATE / "play.pid"
 LAST_SPOKE = STATE / "last"
 EARCONS = ROOT / "assets" / "earcons"
+
+# Real failures land here — and only real failures. Muted, cooldown and dedupe
+# are intended silences and logging them would bury the one line that matters.
+# Lives next to supertonic.log (gitignored, survives reboots, wiped by reinstall).
+LOG_FILE = ROOT / ".venv" / "crier.log"
+
+
+def _log(msg: str) -> None:
+    try:
+        if LOG_FILE.exists() and LOG_FILE.stat().st_size > 65536:
+            LOG_FILE.write_text(LOG_FILE.read_text()[-32768:])
+        with LOG_FILE.open("a") as f:
+            f.write(f"{time.strftime('%F %T')} {msg}\n")
+    except OSError:
+        pass
 
 
 def phrase(key: str, **kw) -> str:
@@ -261,7 +301,8 @@ def first_in_turn(key: str, hook: dict) -> bool:
     turn = f"{hook.get('session_id', '')}:{hook.get('prompt_id', '')}"
     if turn == ":":
         return True  # no turn identity to dedupe on — let the cooldown decide
-    seen = STATE / f"turn-{key}-{hook.get('session_id', 'x')}"
+    sid = re.sub(r"[^A-Za-z0-9_-]", "_", str(hook.get("session_id", "x")))[:64]
+    seen = STATE / f"turn-{key}-{sid}"
     try:
         if seen.read_text() == turn:
             return False
@@ -296,7 +337,11 @@ def detect(text: str) -> str:
         return "ko"
     if re.search(r"[぀-ヿ]", text):
         return "ja"
-    return "en"
+    # Latin/other script: trust the configured language if it is itself
+    # script-undetectable (es, de, fr…). Never fall back to ko/ja here — under a
+    # ko config an English line would get Korean number rewriting applied to it.
+    lang = CFG.get("lang", "en")
+    return "en" if lang in ("ko", "ja") else lang
 
 
 def synth(text: str, path: Path) -> bool:
@@ -319,12 +364,16 @@ def synth(text: str, path: Path) -> bool:
         with urllib.request.urlopen(req, timeout=30) as r:
             path.write_bytes(r.read())
         return path.stat().st_size > 44
-    except (urllib.error.URLError, OSError, TimeoutError):
+    except (urllib.error.URLError, OSError, TimeoutError) as e:
+        _log(f"synth failed ({e.__class__.__name__}: {e}) — is the daemon up? crier start")
         return False  # daemon down — stay silent rather than break the turn
 
 
 def play(path: Path) -> int:
-    return audio.play(path, PLAY_PID)
+    rc = audio.play(path, PLAY_PID)
+    if rc == -1:
+        _log("no audio player found — install pipewire-bin / pulseaudio-utils / alsa-utils")
+    return rc
 
 
 def perform(chime: str, text: str) -> None:
@@ -351,7 +400,11 @@ def perform(chime: str, text: str) -> None:
 def main() -> int:
     if os.environ.get("AGENT_VOICE_CHILD"):
         chime, _, text = sys.stdin.read().partition("\n")
-        perform(chime.strip(), text.strip())
+        try:
+            perform(chime.strip(), text.strip())
+        except Exception:
+            import traceback
+            _log("perform crashed:\n" + traceback.format_exc().strip())
         return 0
 
     try:
@@ -365,6 +418,8 @@ def main() -> int:
     try:
         got = line_for(hook)
     except Exception:
+        import traceback
+        _log("line_for crashed:\n" + traceback.format_exc().strip())
         return 0  # a broken announcement must never break the session
 
     if not got:

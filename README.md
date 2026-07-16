@@ -1,5 +1,9 @@
 # crier
 
+[![ci](https://github.com/pg-Parunson/crier/actions/workflows/ci.yml/badge.svg)](https://github.com/pg-Parunson/crier/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/pg-Parunson/crier)](https://github.com/pg-Parunson/crier/releases)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 **Your coding agent tells you when it's done — out loud, in one sentence.**
 
 *[한국어](README.ko.md)*
@@ -64,6 +68,18 @@ Four moments. Everything else, it stays quiet.
 It never reads the answer aloud. That's already on your screen, and you read faster than you listen.
 
 **Start typing and it stops mid-word.** You never have to wait for it to finish a sentence.
+
+## No sound?
+
+```bash
+crier doctor
+```
+
+It checks every link in the chain — config, daemon, model, audio player, hooks, the
+`[say]` instruction, the mute flag — and tells you which one is broken, with the fix
+next to it. Three most common answers: you haven't restarted your agent session since
+installing; you're muted (`crier unmute`); the daemon isn't up (`crier start`).
+Real failures are also logged to `~/.crier/.venv/crier.log`.
 
 ## Too chatty?
 
@@ -170,6 +186,12 @@ Agents that expose only a contentless ping (Aider) can't carry a brief. crier is
 | `marker` | the prefix the agent writes its spoken line behind |
 
 </details>
+
+## Contributing
+
+[CONTRIBUTING.md](CONTRIBUTING.md) — the one-question philosophy, how to add a language
+(the TTS engine speaks 31; crier ships 3), and how to add an agent. What crier can see
+and what it modifies is spelled out in [SECURITY.md](SECURITY.md).
 
 ## License
 

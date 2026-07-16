@@ -116,8 +116,8 @@ def main() -> int:
     p.add_argument("--yes", action="store_true")
     args, _ = p.parse_known_args()
 
-    cfg = json.loads(CFG.read_text()) if CFG.exists() else \
-        json.loads((ROOT / "config.default.json").read_text())
+    import cfg as cfgmod
+    cfg = cfgmod.load(ROOT)
 
     lang = args.lang or cfg.get("lang") or guess_lang()
     agent = args.agent or "claude"

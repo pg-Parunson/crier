@@ -188,17 +188,34 @@ def main() -> int:
 
     if remove:
         for event in list(node):
-            entries = [e for e in node[event] if not (isinstance(e, dict) and e.get(MARK))]
+            current = node[event]
+            if not isinstance(current, list):
+                continue  # not hook-shaped; not ours to touch
+            entries = [e for e in current if not (isinstance(e, dict) and e.get(MARK))]
             if entries:
                 node[event] = entries
             else:
                 del node[event]
         print(f"  removed from {path}")
     else:
-        node.update(spec["hooks"])
+        # Merge, never assign. Other tools register hooks on these same events —
+        # a peon-ping user must not lose their Stop hook because they tried crier.
+        # Dropping our own MARK entries first also makes reinstall idempotent.
+        for event, ours in spec["hooks"].items():
+            current = node.get(event, [])
+            if not isinstance(current, list):
+                print(f"  warning: {event} in {path} is not a list; left untouched",
+                      file=sys.stderr)
+                continue
+            existing = [e for e in current if not (isinstance(e, dict) and e.get(MARK))]
+            node[event] = existing + ours
         print(f"  {len(spec['hooks'])} hooks → {path}")
 
-    path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+    # Atomic write: a crash mid-write must not leave the agent's settings file
+    # half-serialized — that file belongs to more tools than us.
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(cfg, indent=2, ensure_ascii=False) + "\n")
+    os.replace(tmp, path)
     command_file(name, remove)
     return 0
 

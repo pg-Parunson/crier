@@ -131,3 +131,5 @@ if __name__ == "__main__":
         if got != want:
             print(f"   기대: {want}")
     print(f"\n{len(CASES) - bad}/{len(CASES)} 통과")
+    import sys
+    sys.exit(1 if bad else 0)

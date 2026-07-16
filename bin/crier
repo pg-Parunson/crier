@@ -16,6 +16,8 @@
 #   crier prompt install      let the agent write its own spoken line
 #   crier mute / unmute       going into a meeting
 #   crier say "anything"      one-off
+#   crier doctor              why isn't it speaking?
+#   crier version             what am I running?
 set -u
 
 # bootstrap.sh symlinks this onto your PATH, so BASH_SOURCE is the symlink, not the
@@ -51,7 +53,10 @@ start() {
     [ "$i" = 10 ] && printf '  fetching the voice model (first run only)…\n'
     sleep 0.5
   done
-  echo "failed to start. log: $LOG" >&2; tail -5 "$LOG" >&2; return 1
+  echo "failed to start. log: $LOG" >&2; tail -5 "$LOG" >&2
+  echo "  If the model download is blocked (proxy/firewall), try:" >&2
+  echo "    HF_ENDPOINT=https://<your-mirror> crier start     (also: HF_HUB_DISABLE_XET=1)" >&2
+  return 1
 }
 
 # say <chime> <sentence> — takes the exact path a hook takes
@@ -161,11 +166,39 @@ case "${1:-status}" in
     "$PY" "$ROOT/bin/wire.py" "$A" --remove || exit 1
     "$PY" "$ROOT/bin/prompt.py" remove --agent "$A" || true
     pkill -f "supertonic serve --port $PORT" 2>/dev/null || true
+    # Drop the PATH symlink, but only if it is actually ours.
+    for LNK in "$HOME/.local/bin/crier" "${CRIER_BIN:-}/crier"; do
+      [ -L "$LNK" ] && [ "$(readlink "$LNK")" = "$ROOT/bin/crier" ] && rm -f "$LNK"
+    done
     echo "Unwired. The repo is still at $ROOT — delete it to finish."
     ;;
 
   update)
-    git -C "$ROOT" pull --ff-only && "$ROOT/install.sh" --no-hooks
+    # Installs pin to the newest tag, so releases are deliberate — one push to main
+    # no longer lands on every user. A tag checkout leaves a detached HEAD, where
+    # `git pull` is fatal; fetch+checkout is the only pattern that works both ways.
+    # `crier update --edge` tracks main for people who want that.
+    git -C "$ROOT" fetch --tags --quiet origin || { echo "fetch failed" >&2; exit 1; }
+    if [ "${2:-}" = "--edge" ]; then
+      git -C "$ROOT" checkout --quiet main && git -C "$ROOT" pull --ff-only --quiet
+    else
+      TAG="$(git -C "$ROOT" tag --sort=-v:refname | head -1)"
+      if [ -n "$TAG" ]; then
+        git -C "$ROOT" checkout --quiet "$TAG"
+      else
+        git -C "$ROOT" checkout --quiet main && git -C "$ROOT" pull --ff-only --quiet
+      fi
+    fi
+    "$ROOT/install.sh" --no-hooks
+    echo "now at: $(git -C "$ROOT" describe --tags --always)"
+    ;;
+
+  version|--version|-v)
+    git -C "$ROOT" describe --tags --always
+    ;;
+
+  doctor)
+    "$PY" "$ROOT/bin/doctor.py"
     ;;
 
   say)     say done "${2:-hello}" ;;
@@ -238,6 +271,6 @@ case "${1:-status}" in
     say done  "$(sample example)"
     ;;
 
-  *) echo 'usage: crier {install [agent]|uninstall|update|start|stop|restart|status|voices|voice F3|mood 5|lang ja|name "X"|chimes|demo|prompt install}' >&2
+  *) echo 'usage: crier {install [agent]|uninstall|update|start|stop|restart|status|voices|voice F3|mood 5|lang ja|name "X"|chimes|demo|doctor|version|prompt install}' >&2
      exit 2 ;;
 esac

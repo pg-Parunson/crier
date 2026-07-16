@@ -1,5 +1,9 @@
 # crier
 
+[![ci](https://github.com/pg-Parunson/crier/actions/workflows/ci.yml/badge.svg)](https://github.com/pg-Parunson/crier/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/pg-Parunson/crier)](https://github.com/pg-Parunson/crier/releases)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 **코딩 에이전트가 다 끝나면 말로 알려준다 — 한 문장으로.**
 
 *[English](README.md)*
@@ -64,6 +68,17 @@ crier tone friendly      # plain(담백) · friendly(친근) · playful(유쾌)
 **응답 전체를 읽어주지는 않는다.** 그건 이미 화면에 있고, 읽는 게 듣는 것보다 빠르니까.
 
 **말 걸면 단어 중간에서 멈춘다.** 말이 끝나기를 기다릴 필요가 없다.
+
+## 소리가 안 나면
+
+```bash
+crier doctor
+```
+
+설정→데몬→모델→플레이어→훅→낭독 지시문→음소거까지 사슬 전체를 점검하고, 어느 고리가
+끊겼는지 고치는 법과 함께 알려준다. 제일 흔한 세 가지: 설치 후 에이전트 세션을 재시작
+안 했거나, 음소거 상태거나(`crier unmute`), 데몬이 죽어 있거나(`crier start`).
+실제 실패는 `~/.crier/.venv/crier.log`에도 쌓인다.
 
 ## 시끄러우면
 
@@ -172,6 +187,11 @@ Claude Code와 Codex는 이벤트 이름도 페이로드도 똑같아서 훅을 
 | `marker` | 에이전트가 낭독용 줄을 쓸 때 붙이는 접두어 |
 
 </details>
+
+## 기여
+
+[CONTRIBUTING.md](CONTRIBUTING.md) — 한 문장 철학, 언어 추가법(엔진은 31개 언어를 말하고
+crier는 3개를 실었다), 에이전트 추가법. crier가 뭘 보고 뭘 수정하는지는 [SECURITY.md](SECURITY.md)에.
 
 ## 라이선스
 
